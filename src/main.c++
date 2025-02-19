@@ -7,6 +7,7 @@ using namespace matrix;
 
 int main(void) {
 
+    Matrix<int> matrix(3,3);
 
 
     cout << "Program complete" << endl;

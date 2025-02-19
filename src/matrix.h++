@@ -1,12 +1,13 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 #include <vector>
+#include <iostream>
 #include <cstdint>
 #include <cstddef>
-
+using namespace std;
 namespace matrix {
 
-    template <typename type>
+    template <typename Type>
     class Matrix {
 
     public:
@@ -27,9 +28,9 @@ namespace matrix {
 
 
         //Overload operators
-        Matrix<Type> operator+(const Matrix<type>& rhs) const;
-        Matrix<Type> operator-(const Matrix<type>& rhs) const;
-        Matrix<Type> operator*(const Matrix<type>& rhs) const;
+        Matrix<Type> operator+(const Matrix<Type>& rhs) const;
+        Matrix<Type> operator-(const Matrix<Type>& rhs) const;
+        Matrix<Type> operator*(const Matrix<Type>& rhs) const;
 
 
         //Print
@@ -40,8 +41,6 @@ namespace matrix {
 
 
 
-Matrix matrix_create(size_t rows, size_t cols);
-void matrix_randomise(Matrix matrix, 
 
 #endif
 
