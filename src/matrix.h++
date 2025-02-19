@@ -1,50 +1,86 @@
-#ifndef MATRIX_H
+#
+#
+earqqqqqqqqfndef MATRIX_H
 #define MATRIX_H
-#include <vector>
+
 #include <iostream>
-#include <cstdint>
+#include <vector>
 #include <cstddef>
-using namespace std;
+#include <cstdint>
+
 namespace matrix {
 
     template <typename Type>
     class Matrix {
 
-    public:
-        
-        size_t rows;
-        size_t cols;
-
-        vector<Type> data; //Use vector not array since array is stack allocated
-
-
         //Constructor
-        Matrix(size_t rows, size_t cols);
-
-        
-        //At function (get or set)
-        Type& at(size_t row, size_t col); //Non constant
-        const Type& at(size_t row, size_t col) const; //Constant access
+        Matrix<Type>::Matrix(size_t rows, size_t cols) : rows(rows), cols(cols) {
+            data.resize(rows * cols);
+        }
 
 
-        //Overload operators
-        Matrix<Type> operator+(const Matrix<Type>& rhs) const;
-        Matrix<Type> operator-(const Matrix<Type>& rhs) const;
-        Matrix<Type> operator*(const Matrix<Type>& rhs) const;
+        //At
+        Type& Matrix<Type>::at(size_t row, size_t col) {
+            return data[(row * cols) + col];
+        }
+        const Type& Matrix<Type>::at(size_t row, size_t col) const {
+            return data[(row * cols) + col];
+        }
+
+
+        //Overloading
+        Matrix<Type> Matrix<Type>::operator+(const Matrix<Type>& rhs) const {
+
+            Matrix result(rows, cols);
+            for(size_t i = 0; i < rows * cols; i++) {
+                result.data[i] = this->data[i] + rhs.data[i];
+            }
+            return result;
+        }
+        Matrix<Type> Matrix<Type>::operator-(const Matrix<Type>& rhs) const {
+
+            Matrix result(rows, cols);
+            for(size_t i = 0; i < rows * cols; i++) {
+                result.data[i] = this->data[i] - rhs.data[i];
+            }
+            return result;
+        }
+        Matrix<Type> Matrix<Type>::operator*(const Matrix<Type>& rhs) const {
+
+            Matrix result(rows, cols);
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    for(size_t k = 0; k < cols; k++) {
+                        result.at(i,j) = at(i,k) * rhs.at(j,k);
+                    }
+                }
+            }
+            return result;
+        }
 
 
         //Print
-        void print() const;
-    };
-
+        void Matrix<Type>::print() const {
+            cout << "Rows :: " << rows << " || Cols :: " << cols << "\n" << endl;
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    cout << at(i, j) << " ";
+                }
+                cout << endl;
+            }
+            cout << endl;
+        }
+    }
 }
 
 
 
 
+
+
+
+
+
 #endif
-
-
-
 
 
