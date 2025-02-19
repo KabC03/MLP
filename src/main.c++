@@ -7,9 +7,10 @@ using namespace matrix;
 
 int main(void) {
 
-    Matrix<int> matrix(3,3);
+    Matrix<int> a(3,3);
+    a.randomise(0,10); 
 
-
+    a.print();
     cout << "Program complete" << endl;
     return 0;
 }
