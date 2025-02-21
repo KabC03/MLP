@@ -22,7 +22,18 @@ namespace matrix {
 
 
         //Constructor
+        Matrix() {
+
+        }
         Matrix(size_t rows, size_t cols) : rows(rows), cols(cols) {
+            data.resize(rows * cols);
+        }
+
+
+        //Resize 
+        void resize(size_t nrows, size_t ncols) {
+            rows = nrows;
+            cols = ncols;
             data.resize(rows * cols);
         }
 
@@ -54,7 +65,7 @@ namespace matrix {
         }
         Matrix operator*(const Matrix<Type>& rhs) const {
 
-            Matrix result(rows, cols);
+            Matrix result(rows, rhs.cols);
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < rhs.cols; j++) {
 
