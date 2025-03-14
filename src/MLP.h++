@@ -12,11 +12,17 @@ namespace mlp {
         public:
 
         //Constructor
-        MLP(vector<size_t> &dimensions, Type min, Type max, Type (*newActivationFunction)(Type arg), Type (*newActivationFunctionDerivative)(Type arg)) {
+        MLP(vector<size_t> &dimensions, Type min, Type max, Type (*newActivationFunction)(Type arg), 
+        Type (*newActivationFunctionDerivative)(Type arg), Type (*newLossFunction)(Type arg1, Type arg2), 
+        Type (*newLossFunctionDerivative)(Type arg1, Type arg2)) {
             //[1,2,3] creates a network with 1 input neuron, 1 hidden layer (2 neurons) and 3 output neurons 
 
             activationFunction = newActivationFunction;
             activationFunctionDerivative = newActivationFunctionDerivative;
+
+            lossFunction = newLossFunction;
+            lossFunctionDerivative = newLossFunctionDerivative;
+
             weights.resize(dimensions.size() - 1);
             biases.resize(dimensions.size() - 1);
 
@@ -65,10 +71,25 @@ namespace mlp {
 
         //Backpropagate
         void backpropagate(Matrix<Type> &input) {
-            
+
             return;
         }
 
+
+        //Calculate loss
+        Matrix<Type> loss(Matrix<Type> &expected) {
+            Matrix<Type> result(expected.rows, expected.cols);
+
+            for(size_t i = 0; i < expected.rows; i++) {
+                for(size_t j = 0; j < expected.cols; j++) {
+                    result.at(i,j) = lossFunction(outputs.back().at(i,j), expected.at(i,j));
+                }
+            }
+
+            return result;
+        }
+
+        
         //Print network structure
         void print() {
             cout << "Layers: " << numLayers << endl;
@@ -102,6 +123,9 @@ namespace mlp {
         Matrix<Type> networkInput;
         Type (*activationFunction)(Type arg);
         Type (*activationFunctionDerivative)(Type arg);
+
+        Type (*lossFunction)(Type expected, Type actual);
+        Type (*lossFunctionDerivative)(Type expected, Type actual); //Derivative with respect to actual output NOT expected
 
     };
 }
