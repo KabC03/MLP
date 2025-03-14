@@ -15,7 +15,7 @@ double act(double x) {
     if(x > 0) {
         return x;
     } else {
-        return x;
+        return 0.1 * x;
     }
 }
 
@@ -42,7 +42,7 @@ double loss_deriv(double expected, double actual) {
 
 
 double func(double x) {
-    return sin(x) * 0.5;
+    return sin(x) * 0.3;
 }
 
 
@@ -50,10 +50,10 @@ double func(double x) {
 
 int main(void) {
 
-    vector<size_t> dims = {1,4,4,4,1};
+    vector<size_t> dims = {1,4,4,1};
 
     
-    MLP<double> network(dims, -0.001, 0.001, act, act_deriv, loss, loss_deriv);
+    MLP<double> network(dims, -0.05, 0.05, act, act_deriv, loss, loss_deriv);
     //network.print();
 
 
@@ -72,14 +72,14 @@ int main(void) {
 
         for(size_t j = 0; j < RANGE_STOP; j++) {
 
-            input.at(0,0) = double(j);
+            input.at(0,0) = double(j)/100;
             expected.at(0,0) = func((double)(j));
     
             result = network.run(input);
 
             network.backpropagate(expected, 0.01);
 
-            x[j] = double(j);
+            x[j] = double(j)/100;
             y[j] = result.at(0,0);
 
         }
