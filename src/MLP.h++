@@ -80,11 +80,11 @@ namespace mlp {
             }
 
             for(size_t i = numLayers - 1; i != SIZE_MAX; --i) {
-                Matrix<Type> delta = error.hadamard(outputs[i].activate(activationFunctionDerivative));
+                Matrix<Type> delta = error.hadamard(preActivation[i].activate(activationFunctionDerivative));
 
                 Matrix<Type> inputTransposed;
                 if(i == 0) {
-                    inputTransposed = networkInput;
+                    inputTransposed = networkInput.transpose();
                 } else {
                     inputTransposed = outputs[i - 1].transpose();
                 }
@@ -92,11 +92,12 @@ namespace mlp {
                 Matrix<Type> deltaWeights = delta * inputTransposed;
                 Matrix<Type> deltaBiases = delta;
 
+                Matrix<Type> currentWeights = weights[i];
                 weights[i] = weights[i] - deltaWeights.scale(learningRate);
                 biases[i] = biases[i] - deltaBiases.scale(learningRate);
 
                 if(i > 0) {
-                    Matrix<Type> weightsTransposed = weights[i].transpose();
+                    Matrix<Type> weightsTransposed = currentWeights.transpose();
                     error = weightsTransposed * delta;
                 }
             }
@@ -162,14 +163,6 @@ namespace mlp {
 
     };
 }
-
-/*
-    TODO:
-
-        - ADD ACTIVATION FUNCTION TO NETWORK RUN FUNCTION
-        - Backpropagate method
-        void MLP_backprop(Network &network, vector<float> &expected);
-*/
 
 
 
