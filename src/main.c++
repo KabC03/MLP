@@ -9,7 +9,7 @@ using namespace std;
 using namespace matrix;
 using namespace mlp;
 
-#define OUT_STOP 100
+#define OUT_STOP 10000
 
 double act(double x) {
     if(x > 0) {
@@ -41,16 +41,18 @@ double loss_deriv(double expected, double actual) {
 
 
 
-double func(double x) {
-    return 0.5 * sin(x) + 1;
+double func1(double x) {
+    return 0.2 * sin(x);
 }
-
+double func2(double x) {
+    return 0.5 * cos(x);
+}
 
 
 
 int main(void) {
 
-    vector<size_t> dims = {1, 5, 5, 1};
+    vector<size_t> dims = {1, 5, 3, 1};
 
     
     MLP<double> network(dims, -0.05, 0.05, act, act_deriv, loss, loss_deriv);
@@ -60,10 +62,10 @@ int main(void) {
     Matrix<double> input = {1,1};
     Matrix<double> expected = {1,1};
     Matrix<double> result = {1,1};
-    Matrix<double> norm = {1,1};
 
     vector<double> x;
     vector<double> y;
+    //vector<double> z;
 
     ofstream file("./data/out.txt", ios::trunc);
     if(!file) {
@@ -87,12 +89,13 @@ int main(void) {
     for(size_t i = 0; i < OUT_STOP; i++) {
         //double lossMean = 0;
 
-        double start = -3.14159 + i * 0.001;
+        double start = -3.14159;
         while(start < 3.14159) {
 
             start += 0.01;
             input.at(0,0) = start/3.14159;
-            expected.at(0,0) = func((double)(start));
+            expected.at(0,0) = func1((double)(start));
+            //expected.at(1,0) = func2((double)(start));
     
             result = network.run(input);
 
@@ -101,6 +104,7 @@ int main(void) {
             if(i == OUT_STOP - 1) {
                 x.push_back(start/3.14159);
                 y.push_back(result.at(0,0));
+                //z.push_back(result.at(1,0));
             }
 
         }
@@ -116,6 +120,13 @@ int main(void) {
             for(size_t i = 0; i < y.size(); i++) {
                 appendFile << y[i] << " ";
             }
+            appendFile << endl;
+
+            /*
+            for(size_t i = 0; i < z.size(); i++) {
+                appendFile << z[i] << " ";
+            }
+            */
             appendFile << endl;
             break;
         }
