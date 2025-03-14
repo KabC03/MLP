@@ -112,7 +112,7 @@ namespace matrix {
                     }
                 }
             } else {
-                static_assert(is_floating_point<Type>::value || is_integral<Type>::value, "Unsupported type");
+                static_assert(is_floating_point<Type>::value || is_integral<Type>::value, "Unsupported type for matrix randomisation");
             }
 
         }

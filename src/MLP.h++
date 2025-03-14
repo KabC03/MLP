@@ -63,6 +63,11 @@ namespace mlp {
             return outputs.back();
         }
 
+        //Backpropagate
+        void backpropagate(Matrix<Type> &input) {
+            
+            return;
+        }
 
         //Print network structure
         void print() {
