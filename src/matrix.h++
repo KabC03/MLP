@@ -131,7 +131,7 @@ namespace matrix {
             Matrix result(cols, rows);
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {
-                    result.data[i * cols + j] = result.data[j * cols + i];
+                    result.data[j * rows + i] = data[i * cols + j];
                 }
             }
             return result;
