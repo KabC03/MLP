@@ -118,7 +118,7 @@ namespace matrix {
         }
 
         //Activate
-        Matrix activate(Type (*activationFunction)(Type arg)) {
+        Matrix activate(Type (*activationFunction)(Type arg)) const {
             Matrix result(rows, cols);
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {
@@ -129,7 +129,7 @@ namespace matrix {
         }
 
         //Scalar multiplication
-        Matrix scale(Type scalar) {
+        Matrix scale(const Type scalar) const {
             Matrix result(rows, cols);
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {
@@ -141,7 +141,7 @@ namespace matrix {
 
 
         //Transpose
-        Matrix transpose(void) {
+        Matrix transpose(void) const {
             Matrix result(cols, rows);
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {
@@ -153,7 +153,7 @@ namespace matrix {
 
 
         //Hadamard product
-        Matrix hadamard(Matrix &matrix) {
+        Matrix hadamard(Matrix &matrix) const {
             Matrix result(rows, cols);
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {
