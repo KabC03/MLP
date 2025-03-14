@@ -24,7 +24,7 @@ float relu_deriv(float x) {
 }
 
 float loss(float x, float y) {
-    return x - y;
+    return 2*(x - y);
 }
 
 float loss_deriv(float x, float y) {

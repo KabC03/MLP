@@ -1,7 +1,7 @@
 clear
 
 mkdir ./output
-clang++ ./src/*.c++ -fsanitize=address -Wall -Werror -std=c++23 -O0 -o ./output/out
+clang++ ./src/*.c++ -fsanitize=address -Wall -Werror -std=c++23 -O3 -o ./output/out
 
 if [[ $? -ne 0 ]]; then
 

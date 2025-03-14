@@ -78,13 +78,18 @@ namespace mlp {
         }
 
 
+
+
+
+        
+
         //Calculate loss
         Matrix<Type> loss(Matrix<Type> &expectedOutput) {
             Matrix<Type> result(expectedOutput.rows, expectedOutput.cols);
 
             for(size_t i = 0; i < expectedOutput.rows; i++) {
                 for(size_t j = 0; j < expectedOutput.cols; j++) {
-                    result.at(i,j) = lossFunction(outputs.back().at(i,j), expectedOutput.at(i,j));
+                    result.at(i,j) = lossFunction(expectedOutput.at(i,j), outputs.back().at(i,j));
                 }
             }
 
