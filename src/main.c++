@@ -9,8 +9,7 @@ using namespace std;
 using namespace matrix;
 using namespace mlp;
 
-#define RANGE_STOP 100
-#define OUT_STOP 100
+#define OUT_STOP 1000
 
 double act(double x) {
     if(x > 0) {
@@ -43,7 +42,7 @@ double loss_deriv(double expected, double actual) {
 
 
 double func(double x) {
-    return tan(x) * 0.3;
+    return 0.5 * sin(x) + 1;
 }
 
 
@@ -51,7 +50,7 @@ double func(double x) {
 
 int main(void) {
 
-    vector<size_t> dims = {1,4,4,4,1};
+    vector<size_t> dims = {1, 5, 5, 5 ,1};
 
     
     MLP<double> network(dims, -0.05, 0.05, act, act_deriv, loss, loss_deriv);
@@ -88,36 +87,37 @@ int main(void) {
     for(size_t i = 0; i < OUT_STOP; i++) {
         //double lossMean = 0;
 
-        double start = -3.14159;
+        double start = -3.14159 + i * 0.001;
         while(start < 3.14159) {
 
             start += 0.01;
             input.at(0,0) = start/3.14159;
-            expected.at(0,0) = func((double)(start/3.14159));
+            expected.at(0,0) = func((double)(start));
     
             result = network.run(input);
 
             network.backpropagate(expected, 0.01);
 
-            x.push_back(start/3.14159);
-            y.push_back(result.at(0,0));
-        }
+            if(i == OUT_STOP - 1) {
+                x.push_back(start/3.14159);
+                y.push_back(result.at(0,0));
+            }
 
+        }
 
 
         if(i == OUT_STOP - 1) {
 
-            appendFile << "x = [";
             for(size_t i = 0; i < x.size(); i++) {
-                appendFile << x[i] << ", ";
+                appendFile << x[i] << " ";
             }
-            appendFile << "]" << endl;
+            appendFile << endl;
 
-            appendFile << "y = [";
-            for(size_t i = 0; i < x.size(); i++) {
-                appendFile << x[i] << ", ";
+            for(size_t i = 0; i < y.size(); i++) {
+                appendFile << y[i] << " ";
             }
-            appendFile << "]" << endl;
+            appendFile << endl;
+            break;
         }
 
         //cout << "Expected: " << expected.at(0,0) << " || Calculated: " << result.at(0,0) << endl;

@@ -13,6 +13,7 @@ fi
 printf "\n\n[SHELL] Compilation success\n\n"
 ./output/out
 
+python3 ./src/plot.py
 
 printf "\n\n[SHELL] Program exit code $?\n\n"
 
