@@ -135,6 +135,8 @@ namespace mlp {
                 weights[i].print(); 
                 cout << "Biases: " << endl;
                 biases[i].print(); 
+                cout << "Pre-activation: " << endl;
+                preActivation[i].print();
                 cout << "Outputs: " << endl;
                 outputs[i].print(); 
             }

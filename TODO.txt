@@ -3,3 +3,5 @@ Add this-> everywhere in matrix.h++ and MLP.h++
 
 
 - print statement seems to change output and prevent loss diverging?
+- Network seems to work but you have to mess with activation functions and scaling a lot
+
