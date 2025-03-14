@@ -41,14 +41,14 @@ namespace matrix {
         }
 
         //Resize 
-        void resize(size_t nrows, size_t ncols) {
+        void resize(const size_t nrows, const size_t ncols) {
             rows = nrows;
             cols = ncols;
             data.resize(rows * cols);
         }
 
         //Fill
-        void fill(vector<Type> newData) {
+        void fill(const vector<Type> newData) {
             data = newData;
         }
 
@@ -153,7 +153,7 @@ namespace matrix {
 
 
         //Hadamard product
-        Matrix hadamard(Matrix &matrix) const {
+        Matrix hadamard(const Matrix &matrix) const {
             Matrix result(rows, cols);
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {

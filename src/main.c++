@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <unistd.h>
 #include "matrix.h++"
 #include "MLP.h++"
 
@@ -24,32 +25,56 @@ float relu_deriv(float x) {
 }
 
 float loss(float x, float y) {
-    return 2*(x - y);
+    return (x - y) * (x - y);
 }
 
 float loss_deriv(float x, float y) {
-    return 1;
+    return 2 * (x - y);
 }
+
+
+
+
+float func(float x) {
+    return x * x * x;
+}
+
 
 
 
 int main(void) {
 
-    vector<size_t> dims = {5,3,5};
+    vector<size_t> dims = {1,5,1};
 
 
     MLP<float> network(dims, -0.01, 0.01, relu, relu_deriv, loss, loss_deriv);
     //network.print();
 
 
-    Matrix<float> input(5,1);
-    input.randomise(-0.01, 0.01);
-    Matrix<float> result = network.run(input);
-    network.print();
-    //network.print();
+    Matrix<float> input = {1,1};
+    Matrix<float> expected = {1,1};
 
 
-    network.print();
+    for(size_t i = 0; i < SIZE_MAX; i++) {
+
+
+
+
+
+        input.at(0,0) = i;
+        expected.at(0,0) = func(i);
+
+        Matrix<float> result = network.run(input);
+        
+        network.backpropagate(expected, 0.01);
+
+
+
+        usleep(500000);
+        //result.print();
+        cout << "LOSS:" << endl;
+        network.loss(expected).print();
+    }
 
     cout << "Program complete" << endl;
     return 0;
