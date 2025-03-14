@@ -16,8 +16,6 @@ float func2(float x) {
 
 int main(void) {
 
-
-
     vector<size_t> dims = {3,2,3,4};
 
     MLP<float> network(dims, -0.01, 0.01, func, func2);

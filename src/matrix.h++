@@ -28,6 +28,17 @@ namespace matrix {
         Matrix(size_t rows, size_t cols) : rows(rows), cols(cols) {
             data.resize(rows * cols);
         }
+        Matrix(size_t rows, size_t cols, vector<Type> inputData) : rows(rows), cols(cols) {
+            this->data = inputData;
+        }
+
+        //Convert to vector
+        vector<float> vectorise() {
+            vector<Type> result;
+            result.resize(rows * cols);
+            result = data;
+            return result;
+        }
 
         //Resize 
         void resize(size_t nrows, size_t ncols) {
@@ -36,10 +47,14 @@ namespace matrix {
             data.resize(rows * cols);
         }
 
+        //Fill
+        void fill(vector<Type> newData) {
+            data = newData;
+        }
 
         //At
         Type& at(size_t row, size_t col) {
-            return data[(this->row * this->cols) + this->col];
+            return data[(row * cols) + col];
         }
         const Type& at(size_t row, size_t col) const{
             return data[(row * cols) + col];
