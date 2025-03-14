@@ -79,14 +79,14 @@ namespace mlp {
                 }
             }
 
-            for(size_t i = numLayers - 1; i >= 0; --i) {
+            for(size_t i = numLayers - 1; i != SIZE_MAX; --i) {
                 Matrix<Type> delta = error.hadamard(outputs[i].activate(activationFunctionDerivative));
 
-                Matrix<Type> *inputTransposed;
+                Matrix<Type> inputTransposed;
                 if(i == 0) {
-                    inputTransposed = &networkInput;
+                    inputTransposed = networkInput;
                 } else {
-                    inputTransposed = &(outputs[i - 1]);
+                    inputTransposed = outputs[i - 1].transpose();
                 }
 
                 Matrix<Type> deltaWeights = delta * inputTransposed;
