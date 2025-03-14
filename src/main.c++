@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <unistd.h>
+#include <fstream>
 #include "matrix.h++"
 #include "MLP.h++"
 
@@ -42,7 +43,7 @@ double loss_deriv(double expected, double actual) {
 
 
 double func(double x) {
-    return sin(x) * 0.3;
+    return tan(x) * 0.3;
 }
 
 
@@ -50,7 +51,7 @@ double func(double x) {
 
 int main(void) {
 
-    vector<size_t> dims = {1,4,4,1};
+    vector<size_t> dims = {1,4,4,4,1};
 
     
     MLP<double> network(dims, -0.05, 0.05, act, act_deriv, loss, loss_deriv);
@@ -63,42 +64,60 @@ int main(void) {
     Matrix<double> norm = {1,1};
 
     vector<double> x;
-    x.resize(RANGE_STOP);
     vector<double> y;
-    y.resize(RANGE_STOP);
+
+    ofstream file("./data/out.txt", ios::trunc);
+    if(!file) {
+        cout << "Cannot open file" << endl;
+        exit(1);
+    }
+    file.close();
+
+    ofstream appendFile("./data/out.txt", ios::app);
+    if(!appendFile) {
+        cout << "Cannot open file" << endl;
+        exit(1);
+    }
+
+
+
+
+
+    file << "" << endl;
 
     for(size_t i = 0; i < OUT_STOP; i++) {
         //double lossMean = 0;
 
-        for(size_t j = 0; j < RANGE_STOP; j++) {
+        double start = -3.14159;
+        while(start < 3.14159) {
 
-            input.at(0,0) = double(j)/100;
-            expected.at(0,0) = func((double)(j));
+            start += 0.01;
+            input.at(0,0) = start/3.14159;
+            expected.at(0,0) = func((double)(start/3.14159));
     
             result = network.run(input);
 
             network.backpropagate(expected, 0.01);
 
-            x[j] = double(j)/100;
-            y[j] = result.at(0,0);
-
+            x.push_back(start/3.14159);
+            y.push_back(result.at(0,0));
         }
 
+
+
         if(i == OUT_STOP - 1) {
+
+            appendFile << "x = [";
             for(size_t i = 0; i < x.size(); i++) {
-                cout << x[i] << ", ";
+                appendFile << x[i] << ", ";
             }
-            cout << endl;
-            cout << endl;
-            cout << endl;
-            cout << endl;
-            cout << endl;
-            cout << endl;
-            for(size_t i = 0; i < y.size(); i++) {
-                cout << y[i] << ", ";
+            appendFile << "]" << endl;
+
+            appendFile << "y = [";
+            for(size_t i = 0; i < x.size(); i++) {
+                appendFile << x[i] << ", ";
             }
-            cout << endl;
-            cout << "LOSS: " << network.loss(expected).at(0,0) << endl;
+            appendFile << "]" << endl;
         }
 
         //cout << "Expected: " << expected.at(0,0) << " || Calculated: " << result.at(0,0) << endl;
@@ -110,7 +129,7 @@ int main(void) {
     //network.print();
 
 
-
+    appendFile.close();
     cout << "Program complete" << endl;
     return 0;
 }
