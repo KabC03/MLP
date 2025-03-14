@@ -2,3 +2,4 @@ Add this-> everywhere in matrix.h++ and MLP.h++
 
 
 
+- print statement seems to change output and prevent loss diverging?
