@@ -7,11 +7,18 @@ using namespace std;
 using namespace matrix;
 using namespace mlp;
 
+float func(float x) {
+    return 0;
+}
+float func2(float x) {
+    return x;
+}
+
 int main(void) {
 
     vector<size_t> dims = {3,2,3,4};
 
-    MLP<float> network(dims, -0.01, 0.01);
+    MLP<float> network(dims, -0.01, 0.01, func, func2);
     //network.print();
 
 

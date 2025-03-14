@@ -12,18 +12,24 @@ namespace mlp {
         public:
 
         //Constructor
-        MLP(vector<size_t> &dimensions, Type min, Type max) {
+        MLP(vector<size_t> &dimensions, Type min, Type max, Type (*newActivationFunction)(Type arg), Type (*newActivationFunctionDerivative)(Type arg)) {
             //[1,2,3] creates a network with 1 input neuron, 1 hidden layer (2 neurons) and 3 output neurons 
 
+            activationFunction = newActivationFunction;
+            activationFunctionDerivative = newActivationFunctionDerivative;
             weights.resize(dimensions.size() - 1);
             biases.resize(dimensions.size() - 1);
+
+            preActivation.resize(dimensions.size() - 1);
             outputs.resize(dimensions.size() - 1);
+
             numLayers = dimensions.size() - 1;
 
             for(size_t i = 0; i < numLayers; i++) {
                 weights[i].resize(dimensions[i + 1], dimensions[i]);
                 biases[i].resize(dimensions[i + 1], 1);
 
+                preActivation[i].resize(dimensions[i + 1], 1);
                 outputs[i].resize(dimensions[i + 1], 1);
 
                 weights[i].randomise(min, max);
@@ -47,7 +53,8 @@ namespace mlp {
                 //Matrix<Type> temp = (weights[i] * *prevOutput);
                 //temp.print();
 
-                outputs[i] = (weights[i] * (*prevOutput)) + biases[i]; 
+                preActivation[i] = (weights[i] * (*prevOutput)) + biases[i]; 
+                outputs[i] = preActivation[i].activate(activationFunction);
 
                 prevOutput = &(outputs[i]);
             }
@@ -83,9 +90,13 @@ namespace mlp {
         size_t numLayers;
         vector<Matrix<Type>> weights;
         vector<Matrix<Type>> biases;
+        vector<Matrix<Type>> preActivation;
         vector<Matrix<Type>> outputs;
+
          
         Matrix<Type> networkInput;
+        Type (*activationFunction)(Type arg);
+        Type (*activationFunctionDerivative)(Type arg);
 
     };
 }

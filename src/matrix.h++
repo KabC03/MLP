@@ -103,6 +103,16 @@ namespace matrix {
 
         }
 
+        Matrix activate(Type (*activationFunction)(Type arg)) {
+            Matrix result(rows, cols);
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    result.data[i * cols + j] = activationFunction(data[i * cols + j]);
+                }
+            }
+            return result;
+        }
+
 
 
         //Print
