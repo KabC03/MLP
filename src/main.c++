@@ -9,7 +9,7 @@ using namespace std;
 using namespace matrix;
 using namespace mlp;
 
-#define OUT_STOP 1000
+#define OUT_STOP 100
 
 double act(double x) {
     if(x > 0) {
@@ -50,7 +50,7 @@ double func(double x) {
 
 int main(void) {
 
-    vector<size_t> dims = {1, 5, 5, 5 ,1};
+    vector<size_t> dims = {1, 5, 5, 1};
 
     
     MLP<double> network(dims, -0.05, 0.05, act, act_deriv, loss, loss_deriv);
