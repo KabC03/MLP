@@ -9,7 +9,7 @@ using namespace matrix;
 using namespace mlp;
 
 #define RANGE_STOP 100
-#define OUT_STOP 1000
+#define OUT_STOP 1
 
 double act(double x) {
     if(x > 0) {
