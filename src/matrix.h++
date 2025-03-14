@@ -29,7 +29,6 @@ namespace matrix {
             data.resize(rows * cols);
         }
 
-
         //Resize 
         void resize(size_t nrows, size_t ncols) {
             rows = nrows;
@@ -40,7 +39,7 @@ namespace matrix {
 
         //At
         Type& at(size_t row, size_t col) {
-            return data[(row * cols) + col];
+            return data[(this->row * this->cols) + this->col];
         }
         const Type& at(size_t row, size_t col) const{
             return data[(row * cols) + col];
@@ -57,7 +56,7 @@ namespace matrix {
         }
         Matrix operator-(const Matrix<Type>& rhs) const {
 
-            Matrix result(rows, cols);
+            Matrix result(rows, this->cols);
             for(size_t i = 0; i < rows * cols; i++) {
                 result.data[i] = this->data[i] - rhs.data[i];
             }
@@ -108,7 +107,7 @@ namespace matrix {
             Matrix result(rows, cols);
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {
-                    result.data[i * cols + j] = activationFunction(data[i * cols + j]);
+                    result.at(i,j) = activationFunction(at(i,j));
                 }
             }
             return result;
@@ -119,7 +118,7 @@ namespace matrix {
             Matrix result(rows, cols);
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {
-                    result.data[i * cols + j] = scalar * data[i * cols + j];
+                    result.at(i,j) = scalar * at(i,j);
                 }
             }
             return result;
@@ -131,7 +130,19 @@ namespace matrix {
             Matrix result(cols, rows);
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {
-                    result.data[j * rows + i] = data[i * cols + j];
+                    result.at(j,i) = at(i,j);
+                }
+            }
+            return result;
+        }
+
+
+        //Hadamard product
+        Matrix hadamard(Matrix matrix) {
+            Matrix result(rows, cols);
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    result.at(i,j) = at(i,j) * matrix.at(i,j);
                 }
             }
             return result;

@@ -17,12 +17,6 @@ float func2(float x) {
 int main(void) {
 
 
-    Matrix<float> m1(1,5);
-    m1.randomise(0, 100);
-    Matrix<float> m2 = m1.transpose();
-    m1.print();
-    m2.print();
-    exit(1);
 
     vector<size_t> dims = {3,2,3,4};
 
