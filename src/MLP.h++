@@ -72,11 +72,37 @@ namespace mlp {
         //Backpropagate
         void backpropagate(Matrix<Type> &expectedOutput, Type learningRate) {
 
+            Matrix<Type> error(expectedOutput.rows, expectedOutput.cols);
+            for(size_t i = 0; i < expectedOutput.rows; i++) {
+                for(size_t j = 0; j < expectedOutput.cols; j++) {
+                    error.at(i,j) = lossFunctionDerivative(expectedOutput.at(i,j), outputs.back().at(i,j));
+                }
+            }
 
+            for(size_t i = numLayers - 1; i >= 0; --i) {
+                Matrix<Type> delta = error.hadamard(outputs[i].activate(activationFunctionDerivative));
+
+                Matrix<Type> *inputTransposed;
+                if(i == 0) {
+                    inputTransposed = &networkInput;
+                } else {
+                    inputTransposed = &(outputs[i - 1]);
+                }
+
+                Matrix<Type> deltaWeights = delta * inputTransposed;
+                Matrix<Type> deltaBiases = delta;
+
+                weights[i] = weights[i] - deltaWeights.scale(learningRate);
+                biases[i] = biases[i] - deltaBiases.scale(learningRate);
+
+                if(i > 0) {
+                    Matrix<Type> weightsTransposed = weights[i].transpose();
+                    error = weightsTransposed * delta;
+                }
+            }
 
             return;
         }
-
 
 
 
