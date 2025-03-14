@@ -78,7 +78,7 @@ namespace matrix {
             return result;
         }
 
-
+        //Randomise
         void randomise(Type min, Type max) {
             random_device rd;
             mt19937 gen(rd());
@@ -103,6 +103,7 @@ namespace matrix {
 
         }
 
+        //Activate
         Matrix activate(Type (*activationFunction)(Type arg)) {
             Matrix result(rows, cols);
             for(size_t i = 0; i < rows; i++) {
@@ -113,6 +114,28 @@ namespace matrix {
             return result;
         }
 
+        //Scalar multiplication
+        Matrix scale(Type scalar) {
+            Matrix result(rows, cols);
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    result.data[i * cols + j] = scalar * data[i * cols + j];
+                }
+            }
+            return result;
+        }
+
+
+        //Transpose
+        Matrix transpose(void) {
+            Matrix result(cols, rows);
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    result.data[i * cols + j] = result.data[j * cols + i];
+                }
+            }
+            return result;
+        }
 
 
         //Print
