@@ -9,13 +9,13 @@ using namespace matrix;
 using namespace mlp;
 
 #define RANGE_STOP 100
-#define OUT_STOP 1
+#define OUT_STOP 100
 
 double act(double x) {
     if(x > 0) {
         return x;
     } else {
-        return x/10;
+        return x;
     }
 }
 
@@ -42,7 +42,7 @@ double loss_deriv(double expected, double actual) {
 
 
 double func(double x) {
-    return x * x * x;
+    return sin(x) * 0.5;
 }
 
 
@@ -50,16 +50,17 @@ double func(double x) {
 
 int main(void) {
 
-    vector<size_t> dims = {1,5,5,1};
+    vector<size_t> dims = {1,4,4,4,1};
 
     
-    MLP<double> network(dims, -0.5, 0.5, act, act_deriv, loss, loss_deriv);
+    MLP<double> network(dims, -0.001, 0.001, act, act_deriv, loss, loss_deriv);
     //network.print();
 
 
     Matrix<double> input = {1,1};
     Matrix<double> expected = {1,1};
     Matrix<double> result = {1,1};
+    Matrix<double> norm = {1,1};
 
     vector<double> x;
     x.resize(RANGE_STOP);
@@ -71,15 +72,15 @@ int main(void) {
 
         for(size_t j = 0; j < RANGE_STOP; j++) {
 
-            input.at(0,0) = double(j) / RANGE_STOP;
+            input.at(0,0) = double(j);
             expected.at(0,0) = func((double)(j));
     
             result = network.run(input);
 
-            network.backpropagate(expected, 0.001);
+            network.backpropagate(expected, 0.01);
 
-            x[j] = double(j) / RANGE_STOP;
-            y[j] = expected.at(0,0);
+            x[j] = double(j);
+            y[j] = result.at(0,0);
 
         }
 
@@ -97,6 +98,7 @@ int main(void) {
                 cout << y[i] << ", ";
             }
             cout << endl;
+            cout << "LOSS: " << network.loss(expected).at(0,0) << endl;
         }
 
         //cout << "Expected: " << expected.at(0,0) << " || Calculated: " << result.at(0,0) << endl;

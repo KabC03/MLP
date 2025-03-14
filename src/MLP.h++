@@ -105,11 +105,6 @@ namespace mlp {
             return;
         }
 
-
-
-
-        
-
         //Calculate loss
         Matrix<Type> loss(Matrix<Type> &expectedOutput) {
             Matrix<Type> result(expectedOutput.rows, expectedOutput.cols);
@@ -122,6 +117,9 @@ namespace mlp {
 
             return result;
         }
+
+
+
 
         
         //Print network structure

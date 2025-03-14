@@ -151,6 +151,32 @@ namespace matrix {
             return result;
         }
 
+        //Min max norm
+        Matrix normalise() const {
+            Matrix result(rows, cols);
+
+            //Find min and max in matrix
+            Type minVal = 0;
+            Type maxVal = 0;
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    if(at(i,j) > maxVal) {
+                        maxVal = at(i,j);
+                    }
+                    if(minVal > at(i,j)) {
+                        minVal = at(i,j);
+                    }
+                }
+            }
+
+            //Normalise
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    result.at(i,j) = (2 * (at(i,j) - minVal) / (maxVal - minVal)) - 1;
+                }
+            }
+            return result;
+        }
 
         //Hadamard product
         Matrix hadamard(const Matrix &matrix) const {
