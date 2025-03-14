@@ -57,10 +57,6 @@ int main(void) {
 
     for(size_t i = 0; i < SIZE_MAX; i++) {
 
-
-
-
-
         input.at(0,0) = i;
         expected.at(0,0) = func(i);
 
