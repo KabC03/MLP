@@ -70,19 +70,21 @@ namespace mlp {
         }
 
         //Backpropagate
-        void backpropagate(Matrix<Type> &input) {
+        void backpropagate(Matrix<Type> &expectedOutput, Type learningRate) {
+
+
 
             return;
         }
 
 
         //Calculate loss
-        Matrix<Type> loss(Matrix<Type> &expected) {
-            Matrix<Type> result(expected.rows, expected.cols);
+        Matrix<Type> loss(Matrix<Type> &expectedOutput) {
+            Matrix<Type> result(expectedOutput.rows, expectedOutput.cols);
 
-            for(size_t i = 0; i < expected.rows; i++) {
-                for(size_t j = 0; j < expected.cols; j++) {
-                    result.at(i,j) = lossFunction(outputs.back().at(i,j), expected.at(i,j));
+            for(size_t i = 0; i < expectedOutput.rows; i++) {
+                for(size_t j = 0; j < expectedOutput.cols; j++) {
+                    result.at(i,j) = lossFunction(outputs.back().at(i,j), expectedOutput.at(i,j));
                 }
             }
 
