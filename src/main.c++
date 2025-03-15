@@ -47,7 +47,9 @@ double func1(double x) {
 double func2(double x) {
     return 0.5 * cos(x) * x;
 }
-
+double func3(double x, double y) {
+    return 0.5 * cos(x) * y;
+}
 
 
 int main(void) {

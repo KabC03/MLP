@@ -9,3 +9,5 @@ Add this-> everywhere in matrix.h++ and MLP.h++
 
 - Try model a 2D function
 - Try classification on an image
+- Thread functions
+
