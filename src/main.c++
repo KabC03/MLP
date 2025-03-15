@@ -42,30 +42,30 @@ double loss_deriv(double expected, double actual) {
 
 
 double func1(double x) {
-    return 0.2 * sin(x);
+    return 0.2 * sin(x) * x;
 }
 double func2(double x) {
-    return 0.5 * cos(x);
+    return 0.5 * cos(x) * x;
 }
 
 
 
 int main(void) {
 
-    vector<size_t> dims = {1, 5, 3, 1};
+    vector<size_t> dims = {2, 5, 5, 5, 2};
 
     
     MLP<double> network(dims, -0.05, 0.05, act, act_deriv, loss, loss_deriv);
     //network.print();
 
 
-    Matrix<double> input = {1,1};
-    Matrix<double> expected = {1,1};
-    Matrix<double> result = {1,1};
+    Matrix<double> input = {2,1};
+    Matrix<double> expected = {2,1};
+    Matrix<double> result = {2,1};
 
     vector<double> x;
     vector<double> y;
-    //vector<double> z;
+    vector<double> z;
 
     ofstream file("./data/out.txt", ios::trunc);
     if(!file) {
@@ -90,12 +90,13 @@ int main(void) {
         //double lossMean = 0;
 
         double start = -3.14159;
+        size_t count = 0;
         while(start < 3.14159) {
 
-            start += 0.01;
+            start += 0.0001;
             input.at(0,0) = start/3.14159;
             expected.at(0,0) = func1((double)(start));
-            //expected.at(1,0) = func2((double)(start));
+            expected.at(1,0) = func2((double)(start));
     
             result = network.run(input);
 
@@ -104,7 +105,10 @@ int main(void) {
             if(i == OUT_STOP - 1) {
                 x.push_back(start/3.14159);
                 y.push_back(result.at(0,0));
-                //z.push_back(result.at(1,0));
+                z.push_back(result.at(1,0));
+            }
+            if(count++ % 10000 == 0) {
+                cout << "Expected: " << expected.at(0,0) << " || Calculated: " << result.at(0,0) << endl;
             }
 
         }
@@ -122,22 +126,21 @@ int main(void) {
             }
             appendFile << endl;
 
-            /*
+            
             for(size_t i = 0; i < z.size(); i++) {
                 appendFile << z[i] << " ";
             }
-            */
+            
             appendFile << endl;
             break;
         }
 
-        //cout << "Expected: " << expected.at(0,0) << " || Calculated: " << result.at(0,0) << endl;
-        //lossMean += network.loss(expected).at(0,0);
-        //cout << "LOSS: " << lossMean/1000 << endl;
+
+
     }
     
 
-    //network.print();
+    network.print();
 
 
     appendFile.close();

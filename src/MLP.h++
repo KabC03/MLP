@@ -97,8 +97,7 @@ namespace mlp {
                 biases[i] = biases[i] - deltaBiases.scale(learningRate);
 
                 if(i > 0) {
-                    Matrix<Type> weightsTransposed = currentWeights.transpose();
-                    error = weightsTransposed * delta;
+                    error = currentWeights.transpose() * delta;
                 }
             }
 
@@ -160,7 +159,6 @@ namespace mlp {
 
         Type (*lossFunction)(Type expected, Type actual);
         Type (*lossFunctionDerivative)(Type expected, Type actual); //Derivative with respect to actual output NOT expected
-
     };
 }
 

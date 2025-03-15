@@ -1,27 +1,23 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-numOutputs = 1;
+numOutputs = 2;
 
 def main():
 
     with open("./data/out.txt", "r") as file:
         xLine = file.readline();
-
-
-
-
         xVals = [float(value) for value in xLine.split()];
 
         for i in range(0, numOutputs):
             yLine = file.readline();
             yVals = [float(value) for value in yLine.split()];
-            plt.plot(xVals, yVals, label = "x" + str(i) + " vs x");
+            plt.plot(xVals, yVals, label = "f(x" + str(i) + ") vs x");
 
 
-        plt.title("f(x) vs x");
+        plt.title("f(xn) vs x");
         plt.xlabel("x");
-        plt.ylabel("f(x)");
+        plt.ylabel("f(xn)");
 
 
         plt.legend(loc = "best");
