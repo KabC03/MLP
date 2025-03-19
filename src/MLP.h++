@@ -12,7 +12,7 @@ namespace mlp {
         public:
 
         //Constructor
-        MLP(vector<size_t> &dimensions, Type, Type max, Type (*newActivationFunction)(Type arg), 
+        MLP(vector<size_t> &dimensions, Type min, Type max, Type (*newActivationFunction)(Type arg), 
         Type (*newActivationFunctionDerivative)(Type arg), Type (*newLossFunction)(Type arg1, Type arg2), 
         Type (*newLossFunctionDerivative)(Type arg1, Type arg2)) {
             //[1,2,3] creates a network with 1 input neuron, 1 hidden layer (2 neurons) and 3 output neurons 
