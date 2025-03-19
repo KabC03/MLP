@@ -2,6 +2,7 @@
 #include <vector>
 #include <unistd.h>
 #include <fstream>
+#include <time.h>
 #include "matrix.h++"
 #include "MLP.h++"
 
@@ -9,9 +10,9 @@ using namespace std;
 using namespace matrix;
 using namespace mlp;
 
-#define OUT_STOP 10000
+#define OUT_STOP 100
 
-double act(double x) {
+float act(float x) {
     if(x > 0) {
         return x;
     } else {
@@ -19,7 +20,7 @@ double act(double x) {
     }
 }
 
-double act_deriv(double x) {
+float act_deriv(float x) {
     if(x > 0) {
         return 1;
     } else {
@@ -30,44 +31,44 @@ double act_deriv(double x) {
 
 
 
-double loss(double expected, double actual) {
+float loss(float expected, float actual) {
     return (expected - actual) * (expected - actual);
 }
 
-double loss_deriv(double expected, double actual) {
+float loss_deriv(float expected, float actual) {
     return 2 * (actual - expected);
 }
 
 
 
 
-double func1(double x) {
+float func1(float x) {
     return 0.2 * sin(x) * x;
 }
-double func2(double x) {
+float func2(float x) {
     return 0.5 * cos(x) * x;
 }
-double func3(double x, double y) {
-    return 0.5 * cos(x) * y;
+float func3(float x, float y) {
+    return 0.5 * cos(x);
 }
 
 
 int main(void) {
 
-    vector<size_t> dims = {2, 5, 5, 5, 2};
+    vector<size_t> dims = {2, 3, 3, 2};
 
     
-    MLP<double> network(dims, -0.05, 0.05, act, act_deriv, loss, loss_deriv);
+    MLP<float> network(dims, -0.005, 0.005, act, act_deriv, loss, loss_deriv);
     //network.print();
 
 
-    Matrix<double> input = {2,1};
-    Matrix<double> expected = {2,1};
-    Matrix<double> result = {2,1};
+    Matrix<float> input = {2,1};
+    Matrix<float> expected = {2,1};
+    Matrix<float> result = {2,1};
 
-    vector<double> x;
-    vector<double> y;
-    vector<double> z;
+    vector<float> x;
+    vector<float> y;
+    vector<float> z;
 
     ofstream file("./data/out.txt", ios::trunc);
     if(!file) {
@@ -89,28 +90,47 @@ int main(void) {
     file << "" << endl;
 
     for(size_t i = 0; i < OUT_STOP; i++) {
-        //double lossMean = 0;
+        //float lossMean = 0;
 
-        double start = -3.14159;
+        float start = -3.14159;
         size_t count = 0;
+
+        clock_t startTime = 0;
+        clock_t endTime = 0;
+        float timeRun = 0;
+        float timeTrain = 0;
+
         while(start < 3.14159) {
 
-            start += 0.0001;
+            start += 0.001;
             input.at(0,0) = start/3.14159;
-            expected.at(0,0) = func1((double)(start));
-            expected.at(1,0) = func2((double)(start));
+            expected.at(0,0) = func1((float)(start));
+            expected.at(1,0) = func2((float)(start));
     
+            startTime = clock();
             result = network.run(input);
+            endTime = clock();
+            timeRun = ((float) (endTime - startTime)) / CLOCKS_PER_SEC;
 
-            network.backpropagate(expected, 0.01);
+
+            startTime = clock();
+            network.backpropagate(input, expected, 0.01);
+            endTime = clock();
+            timeTrain = ((float) (endTime - startTime)) / CLOCKS_PER_SEC;
+
 
             if(i == OUT_STOP - 1) {
                 x.push_back(start/3.14159);
                 y.push_back(result.at(0,0));
                 z.push_back(result.at(1,0));
             }
-            if(count++ % 10000 == 0) {
+            /*
+            if(count++ % 100000 == 0) {
                 cout << "Expected: " << expected.at(0,0) << " || Calculated: " << result.at(0,0) << endl;
+            }
+            */
+            if(count++ % 10000 == 0) {
+                cout << "\tRun: " << timeRun << " || Train: " << timeTrain << endl;
             }
 
         }
@@ -142,7 +162,7 @@ int main(void) {
     }
     
 
-    network.print();
+    //network.print();
 
 
     appendFile.close();

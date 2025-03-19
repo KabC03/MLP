@@ -92,8 +92,37 @@ namespace matrix {
             return result;
         }
 
+
+        //In place arithmatic
+        Matrix multiply_in_place(const Matrix<Type> &lhs, const Matrix<Type> &rhs) {
+            for(size_t i = 0; i < lhs.rows; i++) {
+                for(size_t j = 0; j < rhs.cols; j++) {
+
+                    at(i,j) = 0;
+                    for(size_t k = 0; k < lhs.cols; k++) {
+                        at(i,j) += lhs.at(i,k) * rhs.at(k,j);
+                    }
+                }
+            }
+            return *this;
+        }
+
+        Matrix add_in_place(const Matrix<Type> &rhs) {
+            for(size_t i = 0; i < rows * cols; i++) {
+                data[i] = data[i] + rhs.data[i];
+            }
+            return *this;
+        }
+        Matrix sub_in_place(const Matrix<Type> &rhs) {
+            for(size_t i = 0; i < rows * cols; i++) {
+                data[i] = data[i] - rhs.data[i];
+            }
+            return *this;
+        }
+
+
         //Randomise
-        void randomise(Type min, Type max) {
+        Matrix randomise_in_place(Type min, Type max) {
             random_device rd;
             mt19937 gen(rd());
 
@@ -114,7 +143,7 @@ namespace matrix {
             } else {
                 static_assert(is_floating_point<Type>::value || is_integral<Type>::value, "Unsupported type for matrix randomisation");
             }
-
+            return *this;
         }
 
         //Activate
@@ -128,6 +157,17 @@ namespace matrix {
             return result;
         }
 
+        Matrix activate_in_place(Type (*activationFunction)(Type arg)) {
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    at(i,j) = activationFunction(at(i,j));
+                }
+            }
+            return *this;
+        }
+
+
+
         //Scalar multiplication
         Matrix scale(const Type scalar) const {
             Matrix result(rows, cols);
@@ -137,6 +177,15 @@ namespace matrix {
                 }
             }
             return result;
+        }
+
+        Matrix scale_in_place(const Type scalar) {
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    at(i,j) = scalar * at(i,j);
+                }
+            }
+            return *this;
         }
 
 
@@ -149,6 +198,17 @@ namespace matrix {
                 }
             }
             return result;
+        }
+
+        Matrix transpose_in_place(void) {
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    Type temp = at(j,i);
+                    at(j,i) = at(i,j);
+                    at(i,j) = temp;
+                }
+            }
+            return *this;
         }
 
         //Min max norm
@@ -189,6 +249,15 @@ namespace matrix {
             return result;
         }
 
+
+        Matrix hadamard_in_place(const Matrix &matrix) {
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    at(i,j) = at(i,j) * matrix.at(i,j);
+                }
+            }
+            return *this;
+        }
 
         //Print
         void print() const {
