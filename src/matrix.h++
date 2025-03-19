@@ -7,7 +7,6 @@
 #include <cstdint>
 #include <random>
 #include <type_traits>
-#include <thread>
 
 using namespace std;
 namespace matrix {
