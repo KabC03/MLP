@@ -10,7 +10,7 @@ using namespace std;
 using namespace matrix;
 using namespace mlp;
 
-#define OUT_STOP 100
+#define OUT_STOP 10
 
 float act(float x) {
     if(x > 0) {
@@ -55,7 +55,7 @@ float func3(float x, float y) {
 
 int main(void) {
 
-    vector<size_t> dims = {2, 3, 3, 2};
+    vector<size_t> dims = {2, 500, 2};
 
     
     MLP<float> network(dims, -0.005, 0.005, act, act_deriv, loss, loss_deriv);

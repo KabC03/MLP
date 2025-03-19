@@ -12,7 +12,7 @@ namespace mlp {
         public:
 
         //Constructor
-        MLP(vector<size_t> &dimensions, Type min, Type max, Type (*newActivationFunction)(Type arg), 
+        MLP(vector<size_t> &dimensions, Type, Type max, Type (*newActivationFunction)(Type arg), 
         Type (*newActivationFunctionDerivative)(Type arg), Type (*newLossFunction)(Type arg1, Type arg2), 
         Type (*newLossFunctionDerivative)(Type arg1, Type arg2)) {
             //[1,2,3] creates a network with 1 input neuron, 1 hidden layer (2 neurons) and 3 output neurons 
@@ -52,9 +52,9 @@ namespace mlp {
             for(size_t i = 0; i < numLayers; i++) {
 
 
-                //outputs[i] = (weights[i] * (*prevOutput)).add_in_place(biases[i]).activate_in_place(activationFunction); //Slower...
-                //outputs[i] = ((weights[i] * (*prevOutput)) + biases[i]).activate_in_place(activationFunction); //Also slower
-                outputs[i] = ((weights[i] * (*prevOutput)) + biases[i]).activate(activationFunction);
+                outputs[i] = ((weights[i] * (*prevOutput)) + (biases[i])).activate(activationFunction); //Slower...
+                //outputs[i] = ((weights[i] * (*prevOutput)) + biases[i]).activate(activationFunction); //Also slower
+                //outputs[i] = ((weights[i] * (*prevOutput)) + biases[i]).activate(activationFunction);
 
                 prevOutput = &(outputs[i]);
             }
@@ -81,7 +81,7 @@ namespace mlp {
                 //temp.print();
 
                 preActivation[i] = (weights[i] * (*prevOutput)) + biases[i]; 
-                outputs[i] = preActivation[i].activate_in_place(activationFunction);
+                outputs[i] = preActivation[i].activate(activationFunction);
 
                 prevOutput = &(outputs[i]);
             }
@@ -94,7 +94,7 @@ namespace mlp {
             }
 
             for(size_t i = numLayers - 1; i != SIZE_MAX; --i) {
-                Matrix<Type> delta = error.hadamard_in_place(preActivation[i].activate_in_place(activationFunctionDerivative));
+                Matrix<Type> delta = error.hadamard(preActivation[i].activate(activationFunctionDerivative));
 
                 Matrix<Type> inputTransposed;
                 if(i == 0) {
@@ -107,8 +107,8 @@ namespace mlp {
                 Matrix<Type> deltaBiases = delta;
 
                 Matrix<Type> currentWeights = weights[i];
-                weights[i] = weights[i] - deltaWeights.scale(learningRate);
-                biases[i] = biases[i] - deltaBiases.scale(learningRate);
+                weights[i] = weights[i] - (deltaWeights.scale(learningRate));
+                biases[i] = biases[i] - (deltaBiases.scale(learningRate));
 
                 if(i > 0) {
                     error = currentWeights.transpose() * delta;
@@ -182,4 +182,5 @@ namespace mlp {
 
 
 #endif
+
 
