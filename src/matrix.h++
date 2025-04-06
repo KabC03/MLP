@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <random>
 #include <type_traits>
+#include <thread>
 
 using namespace std;
 namespace matrix {
@@ -40,7 +41,7 @@ namespace matrix {
             return result;
         }
 
-        //Resize 
+        //Resize
         void resize(const size_t nrows, const size_t ncols) {
             rows = nrows;
             cols = ncols;
