@@ -55,6 +55,15 @@ float func3(float x, float y) {
 
 int main(void) {
 
+    Matrix<float> m1;
+    Matrix<float> m2;
+    m1.randomise_in_place(0.01, 0.05);
+    m2.randomise_in_place(0.01, 0.05);
+
+    Matrix<float> m3 = m1 + m2;
+    m3.print();
+
+    return 0;
     vector<size_t> dims = {2, 500, 2};
 
     

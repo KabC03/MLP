@@ -10,6 +10,8 @@
 #include <thread>
 
 using namespace std;
+static unsigned int numThreads = thread::hardware_concurrency();
+
 namespace matrix {
 
     template <typename Type>
@@ -65,6 +67,32 @@ namespace matrix {
         Matrix operator+(const Matrix<Type>& rhs) const {
 
             Matrix result(rows, cols);
+            vector<thread> threads(numThreads);
+
+            auto add_element = [](Type &dest, Type arg1, Type arg2) { //Lambda for threading
+                dest = arg1 + arg2;
+                return;
+            };
+
+            size_t matrixSize = this->rows * this->cols;
+            size_t evenWork = matrixSize/numThreads;
+            size_t remainder = matrixSize % numThreads;
+
+
+            for(size_t i = 0; i < numThreads - 1; i++) { //First threads do even work
+                for(size_t j = 0; j < evenWork; j++) {
+                    threads[i] = thread(add_element, ref(result.data[i + j]), this->data[i + j], rhs.data[i + j]);
+                }
+            }
+            for(size_t i = 0; i < remainder; i++) { //Last thread cleans remainder
+                threads.back() = thread(add_element, ref(result.data[i * numThreads]), this->data[i * numThreads], rhs.data[i * numThreads]);
+            }
+            for(size_t i = 0; i < numThreads; i++) {
+                threads[i].join();
+            }
+
+
+
             for(size_t i = 0; i < rows * cols; i++) {
                 result.data[i] = this->data[i] + rhs.data[i];
             }

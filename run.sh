@@ -1,4 +1,4 @@
-#clear
+clear
 
 mkdir ./output
 clang++ ./src/*.c++ -fsanitize=address -Wall -std=c++23 -fsanitize=undefined -O3 -o ./output/out
