@@ -61,7 +61,7 @@ int main(void) {
     clock_t endTime = 0;
 
 
-    vector<size_t> dims = {2, 1000, 2};
+    vector<size_t> dims = {2, 3, 3, 2};
     MLP<float> network(dims, -0.005, 0.005, act, act_deriv, loss, loss_deriv);
     //network.print();
 
@@ -103,7 +103,7 @@ int main(void) {
         while(start < 3.14159) {
 
             float t1 = clock();
-            start += 0.001;
+            start += 0.0001;
             input.at(0,0) = start/3.14159;
             expected.at(0,0) = func1((float)(start));
             expected.at(1,0) = func2((float)(start));
