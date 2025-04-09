@@ -12,7 +12,7 @@ Add this-> everywhere in matrix.h++ and MLP.h++
 - Thread functions
 
 
-- Thread randomise, scale, multiply, activate and transpose functions
-- Clean up code with macros
+- Thread randomise, multiply and transpose functions
+    - Clean up code with macros
 
 
