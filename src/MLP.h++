@@ -152,7 +152,20 @@ namespace mlp {
                 outputs[i].print(); 
             }
         }
-
+        void print_dimensions() {
+            cout << "Layers: " << numLayers << endl;
+            cout << "Input: " << endl;
+            networkInput.print_dimensions();
+            for(size_t i = 0; i < numLayers; i++) {
+                cout << "\t\tLayer: " << i << endl;
+                cout << "Weights: " << endl;
+                cout << "Biases: " << endl;
+                cout << "Pre-activation: " << endl;
+                preActivation[i].print_dimensions();
+                cout << "Outputs: " << endl;
+                outputs[i].print_dimensions(); 
+            }
+        }
 
 
 

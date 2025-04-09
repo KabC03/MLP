@@ -10,7 +10,7 @@ using namespace std;
 using namespace matrix;
 using namespace mlp;
 
-#define OUT_STOP 10
+#define OUT_STOP 1
 
 
 
@@ -57,41 +57,18 @@ float func3(float x, float y) {
 
 int main(void) {
 
-    size_t num = 10;
-    size_t size = 1000;
-    Matrix<float> m3(size, size);
-    double time = 0;
-    for(size_t i = 0; i < num; i++) {
-        Matrix<float> m1(size,size);
-        Matrix<float> m2(size,size);
-    
-        m1.randomise_in_place(0, 10);
-        m2.randomise_in_place(0, 10);
-    
-        auto start = std::chrono::high_resolution_clock::now();
-        Matrix<float> m3 = m1 + m2;
-        auto end = std::chrono::high_resolution_clock::now();
-    
-        time += std::chrono::duration<double>(end - start).count();
-    }
-    std::cout << "Average time: " << (time / num) << " seconds" << endl;
-    cout << m3.at(0,0) << endl;
-
-
-
-    return 0;
     clock_t startTime = 0;
     clock_t endTime = 0;
-    vector<size_t> dims = {2, 3, 2};
 
-    
+
+    vector<size_t> dims = {3, 5, 3};
     MLP<float> network(dims, -0.005, 0.005, act, act_deriv, loss, loss_deriv);
     //network.print();
 
 
-    Matrix<float> input = {2,1};
-    Matrix<float> expected = {2,1};
-    Matrix<float> result = {2,1};
+    Matrix<float> input = {3, 1};
+    Matrix<float> expected = {3, 1};
+    Matrix<float> result = {3, 1};
 
     vector<float> x;
     vector<float> y;
@@ -111,7 +88,7 @@ int main(void) {
     }
 
     file << "" << endl;
-
+    network.print_dimensions();
     for(size_t i = 0; i < OUT_STOP; i++) {
         //float lossMean = 0;
 
@@ -121,14 +98,17 @@ int main(void) {
 
         float timeRun = 0;
         float timeTrain = 0;
+        float totalTime = 0;
 
         while(start < 3.14159) {
 
+            float t1 = clock();
             start += 0.001;
             input.at(0,0) = start/3.14159;
             expected.at(0,0) = func1((float)(start));
             expected.at(1,0) = func2((float)(start));
-    
+            expected.at(2,0) = func2((float)(start));
+
             startTime = clock();
             result = network.run(input);
             endTime = clock();
@@ -142,18 +122,22 @@ int main(void) {
 
 
             if(i == OUT_STOP - 1) {
-                x.push_back(start/3.14159);
-                y.push_back(result.at(0,0));
-                z.push_back(result.at(1,0));
+                x.push_back(result.at(0,0));
+                y.push_back(result.at(1,0));
+                z.push_back(result.at(2,0));
             }
             /*
             if(count++ % 100000 == 0) {
                 cout << "Expected: " << expected.at(0,0) << " || Calculated: " << result.at(0,0) << endl;
             }
             */
-            if(count++ % 10000 == 0) {
-                cout << "\tRun: " << timeRun << " || Train: " << timeTrain << endl;
+
+            float t2 = clock();
+            totalTime = ((float) (t2 - t1)) / CLOCKS_PER_SEC;
+            if(count++ % 100 == 0) {
+                cout << "\tRun: " << timeRun << " || Train: " << timeTrain << " || " << totalTime << endl;
             }
+
 
         }
 

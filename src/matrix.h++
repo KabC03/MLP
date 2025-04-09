@@ -9,11 +9,36 @@
 #include <type_traits>
 #include <thread>
 
+
+#define MACRO_MATRIX_THREAD_ACTIVATION(rows, cols, destArray, src1Array, func, thrededFunction) { \
+    if(rows * cols < threadSizeThreshold) { \
+        for(size_t i = 0; i < rows * cols; i++) { \
+            destArray[i] = func(src1Array[i]); \
+        } \
+    } else { \
+        vector<thread> threads; \
+        threads.reserve(numThreads); \
+        size_t matrixSize = rows * cols; \
+        size_t evenWork = matrixSize/numThreads; \
+        for(size_t i = 0; i < numThreads; i++) { \
+            size_t start = i * evenWork; \
+            size_t stop  = (i == numThreads - 1) ? matrixSize : (i + 1) * evenWork; \
+            threads.emplace_back([&, start, stop] { \
+                thrededFunction<Type, decltype(func)>(destArray, src1Array, func, start, stop); \
+            }); \
+        } \
+        for(size_t i = 0; i < numThreads; i++) { \
+            threads[i].join(); \
+        } \
+    } \
+};
+
+
 //Thread addition, subtraction, etc (basically vector addition)
 #define MACRO_MATRIX_THREAD_OPERATION(rows, cols, destArray, src1Array, src2Array, nonThreadedOperation, thrededFunction) { \
     if(rows * cols < threadSizeThreshold) { \
         for(size_t i = 0; i < rows * cols; i++) { \
-            destArray[i] = src1Array[i] nonThreadedOperation src2Array[i];; \
+            destArray[i] = src1Array[i] nonThreadedOperation src2Array[i]; \
         } \
     } else { \
         vector<thread> threads; \
@@ -45,7 +70,7 @@ using namespace std;
 
 namespace matrix {
 
-    static const size_t threadSizeThreshold = 10000; //If a matrix is larger than this use threading
+    static const size_t threadSizeThreshold = 1000; //If a matrix is larger than this use threading
     static unsigned int numThreads = thread::hardware_concurrency();
 
     template <typename Type>
@@ -69,6 +94,20 @@ namespace matrix {
         }
         return;
     }
+    template <typename Type, typename Func>
+    static void activate_vector(std::vector<Type>& dest, const std::vector<Type>& src, Func activationFunction, size_t start, size_t stop) {
+        for(size_t i = start; i < stop; i++) {
+            dest[i] = activationFunction(src[i]);
+        }
+    }
+    template <typename Type>
+    static void rand_vector_float(vector<Type> &dest, Type val, size_t start, size_t stop) {
+        for(size_t i = start; i < stop; i++) {
+            dest[i] = val;
+        }
+        return;
+    }
+
 
     template <typename Type>
     class Matrix {
@@ -165,25 +204,21 @@ namespace matrix {
         }
 
         Matrix add_in_place(const Matrix<Type> &rhs) {
-            for(size_t i = 0; i < rows * cols; i++) {
-                data[i] = data[i] + rhs.data[i];
-            }
+            MACRO_MATRIX_THREAD_OPERATION(this->rows, this->cols, this->data, this->data, rhs.data, +, add_vector);
             return *this;
         }
         Matrix sub_in_place(const Matrix<Type> &rhs) {
-            for(size_t i = 0; i < rows * cols; i++) {
-                data[i] = data[i] - rhs.data[i];
-            }
+            MACRO_MATRIX_THREAD_OPERATION(this->rows, this->cols, this->data, this->data, rhs.data, -, sub_in_place);
             return *this;
         }
 
 
         //Randomise
         Matrix randomise_in_place(Type min, Type max) {
-            random_device rd;
-            mt19937 gen(rd());
-
+            static random_device rd;
+            static mt19937 gen(rd());
             if constexpr(is_integral<Type>::value) {
+
                 uniform_int_distribution<Type> dist(min, max);
                 for(size_t i = 0; i < rows; i++) {
                     for(size_t j = 0; j < cols; j++) {
@@ -197,6 +232,7 @@ namespace matrix {
                         at(i,j) = dist(gen);
                     }
                 }
+
             } else {
                 static_assert(is_floating_point<Type>::value || is_integral<Type>::value, "Unsupported type for matrix randomisation");
             }
@@ -206,20 +242,12 @@ namespace matrix {
         //Activate
         Matrix activate(Type (*activationFunction)(Type arg)) const {
             Matrix result(rows, cols);
-            for(size_t i = 0; i < rows; i++) {
-                for(size_t j = 0; j < cols; j++) {
-                    result.at(i,j) = activationFunction(at(i,j));
-                }
-            }
+            MACRO_MATRIX_THREAD_ACTIVATION(this->rows, this->cols, result.data, this->data, activationFunction, activate_vector);
             return result;
         }
 
         Matrix activate_in_place(Type (*activationFunction)(Type arg)) {
-            for(size_t i = 0; i < rows; i++) {
-                for(size_t j = 0; j < cols; j++) {
-                    at(i,j) = activationFunction(at(i,j));
-                }
-            }
+            MACRO_MATRIX_THREAD_ACTIVATION(this->rows, this->cols, this->data, this->data, activationFunction, activate_vector);
             return *this;
         }
 
@@ -228,20 +256,20 @@ namespace matrix {
         //Scalar multiplication
         Matrix scale(const Type scalar) const {
             Matrix result(rows, cols);
-            for(size_t i = 0; i < rows; i++) {
-                for(size_t j = 0; j < cols; j++) {
-                    result.at(i,j) = scalar * at(i,j);
-                }
-            }
+
+            auto scale_element = [scalar](Type arg) {
+                return arg * scalar;
+            };
+            
+            MACRO_MATRIX_THREAD_ACTIVATION(this->rows, this->cols, result.data, this->data, scale_element, activate_vector);
             return result;
         }
 
         Matrix scale_in_place(const Type scalar) {
-            for(size_t i = 0; i < rows; i++) {
-                for(size_t j = 0; j < cols; j++) {
-                    at(i,j) = scalar * at(i,j);
-                }
-            }
+            auto scale_element = [scalar](Type arg) {
+                return arg * scalar;
+            };
+            MACRO_MATRIX_THREAD_ACTIVATION(this->rows, this->cols, this->data, this->data, scale_element, activate_vector);
             return *this;
         }
 
@@ -313,8 +341,13 @@ namespace matrix {
         }
 
         //Print
-        void print() const {
+        void print_dimensions() const {
             cout << "Rows :: " << rows << " || Cols :: " << cols << "\n" << endl;
+            return;
+        }
+
+        void print() const {
+            this->print_dimensions();
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {
                     cout << at(i, j) << " ";
@@ -322,7 +355,9 @@ namespace matrix {
                 cout << endl;
             }
             cout << endl;
+            return;
         }
+
     };
 }
 
