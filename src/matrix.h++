@@ -69,8 +69,10 @@ namespace matrix {
             Matrix result(rows, cols);
             vector<thread> threads(numThreads);
 
-            auto add_element = [](Type &dest, Type arg1, Type arg2) { //Lambda for threading
-                dest = arg1 + arg2;
+            auto add_vector = [](vector<Type> &dest ,vector<Type> &src1, vector<Type> &src2, size_t start, size_t stop) {
+                for(size_t i = start; i < stop; i++) {
+                    dest[i] = src1[i] + src2[i];
+                }
                 return;
             };
 
@@ -78,23 +80,15 @@ namespace matrix {
             size_t evenWork = matrixSize/numThreads;
             size_t remainder = matrixSize % numThreads;
 
-
             for(size_t i = 0; i < numThreads - 1; i++) { //First threads do even work
-                for(size_t j = 0; j < evenWork; j++) {
-                    threads[i] = thread(add_element, ref(result.data[i + j]), this->data[i + j], rhs.data[i + j]);
-                }
+                threads[i] = thread(add_vector, ref(result.data), ref(this->data), ref(rhs.data), 
+                i * evenWork, (i + 1) * evenWork);
             }
-            for(size_t i = 0; i < remainder; i++) { //Last thread cleans remainder
-                threads.back() = thread(add_element, ref(result.data[i * numThreads]), this->data[i * numThreads], rhs.data[i * numThreads]);
-            }
+            threads.back() = thread(add_vector, ref(result.data), ref(this->data), ref(rhs.data),
+             (numThreads - 1) * evenWork, matrixSize);
+
             for(size_t i = 0; i < numThreads; i++) {
                 threads[i].join();
-            }
-
-
-
-            for(size_t i = 0; i < rows * cols; i++) {
-                result.data[i] = this->data[i] + rhs.data[i];
             }
             return result;
         }
