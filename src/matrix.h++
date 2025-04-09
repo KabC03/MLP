@@ -9,26 +9,65 @@
 #include <type_traits>
 #include <thread>
 
+#define MACRO_MATRIX_THREAD_OPERATION(rows, cols, destArray, src1Array, src2Array, nonThreadedOperation, thrededFunction) { \
+    if(rows * cols < threadSizeThreshold) { \
+        for(size_t i = 0; i < rows * cols; i++) { \
+            destArray[i] = src1Array[i] nonThreadedOperation src2Array[i];; \
+        } \
+    } else { \
+        vector<thread> threads; \
+        threads.reserve(numThreads); \
+        size_t matrixSize = rows * cols; \
+        size_t evenWork = matrixSize/numThreads; \
+        for(size_t i = 0; i < numThreads; i++) { \
+            size_t start = i * evenWork; \
+            size_t stop = 0; \
+            if (i == numThreads - 1) { \
+                stop = matrixSize; \
+            } else { \
+                stop = (i + 1) * evenWork; \
+            } \
+            threads.emplace_back([&, start, stop] { \
+                thrededFunction<Type>(ref(destArray), cref(src1Array), cref(src2Array), start, stop); \
+            }); \
+        } \
+        for(size_t i = 0; i < numThreads; i++) { \
+            threads[i].join(); \
+        } \
+    } \
+};
+
+
+
 using namespace std;
-static unsigned int numThreads = thread::hardware_concurrency();
+
 
 namespace matrix {
 
+    static const size_t threadSizeThreshold = 10000; //If a matrix is larger than this use threading
+    static unsigned int numThreads = thread::hardware_concurrency();
+
     template <typename Type>
-    static void add_vector(vector<Type> &dest ,vector<Type> &src1, vector<Type> &src2, size_t start, size_t stop) {
+    static void add_vector(vector<Type> &dest ,const vector<Type> &src1, const vector<Type> &src2, size_t start, size_t stop) {
         for(size_t i = start; i < stop; i++) {
             dest[i] = src1[i] + src2[i];
         }
         return;
     }
     template <typename Type>
-    static void sub_vector(vector<Type> &dest ,vector<Type> &src1, vector<Type> &src2, size_t start, size_t stop) {
+    static void sub_vector(vector<Type> &dest ,const vector<Type> &src1, const vector<Type> &src2, size_t start, size_t stop) {
         for(size_t i = start; i < stop; i++) {
             dest[i] = src1[i] - src2[i];
         }
         return;
     }
-
+    template <typename Type>
+    static void mul_vector(vector<Type> &dest ,const vector<Type> &src1, const vector<Type> &src2, size_t start, size_t stop) {
+        for(size_t i = start; i < stop; i++) {
+            dest[i] = src1[i] * src2[i];
+        }
+        return;
+    }
 
     template <typename Type>
     class Matrix {
@@ -82,50 +121,45 @@ namespace matrix {
         //Overloading
         Matrix operator+(const Matrix<Type>& rhs) const {
 
-            Matrix result(rows, cols);
-            vector<thread> threads(numThreads);
-
-
-
-            size_t matrixSize = this->rows * this->cols;
-            size_t evenWork = matrixSize/numThreads;
-            //size_t remainder = matrixSize % numThreads;
-
-            for(size_t i = 0; i < numThreads - 1; i++) { //First threads do even work
-                threads.emplace_back(thread(add_vector<Type>, ref(result.data), cref(this->data), cref(rhs.data), 
-                i * evenWork, (i + 1) * evenWork));
-            }
-            threads.emplace_back(thread(add_vector<Type>, ref(result.data), cref(this->data), cref(rhs.data),
-             (numThreads - 1) * evenWork, matrixSize));
-
-            for(size_t i = 0; i < numThreads; i++) {
-                threads[i].join();
-            }
-
-
+            Matrix result(this->rows, this->cols);
+            MACRO_MATRIX_THREAD_OPERATION(this->rows, this->cols, result.data, this->data, rhs.data, +, add_vector);
             
             return result;
         }
         Matrix operator-(const Matrix<Type>& rhs) const {
 
             Matrix result(rows, cols);
-            vector<thread> threads(numThreads);
 
-            size_t matrixSize = this->rows * this->cols;
-            size_t evenWork = matrixSize/numThreads;
-            //size_t remainder = matrixSize % numThreads;
-
-            for(size_t i = 0; i < numThreads - 1; i++) { //First threads do even work
-                threads.emplace_back(thread(sub_vector<Type>, ref(result.data), cref(this->data), cref(rhs.data), 
-                i * evenWork, (i + 1) * evenWork));
+            //Yes this introduces a branch, but cost(misprediction) < cost(threading) for small matricies
+            if(rows * cols < threadSizeThreshold) {
+                for(size_t i = 0; i < rows * cols; i++) {
+                    result.data[i] = rhs.data[i] - data[i];
+                }
+            } else {
+                vector<thread> threads;
+                threads.reserve(numThreads);
+    
+                size_t matrixSize = this->rows * this->cols;
+                size_t evenWork = matrixSize/numThreads;
+                //size_t remainder = matrixSize % numThreads;
+                for(size_t i = 0; i < numThreads; i++) { //First threads do even work
+                    size_t start = i * evenWork;
+                    size_t stop = 0;
+                    if (i == numThreads - 1) {
+                        stop = matrixSize;
+                    } else {
+                        stop = (i + 1) * evenWork;
+                    }
+                    threads.emplace_back([&, start, stop] {
+                        sub_vector<Type>(ref(result.data), cref(this->data), cref(rhs.data), start, stop);
+                    });
+                }
+                for(size_t i = 0; i < numThreads; i++) {
+                    threads[i].join();
+                }
             }
-            threads.emplace_back(thread(sub_vector<Type>, ref(result.data), cref(this->data), cref(rhs.data),
-             (numThreads - 1) * evenWork, matrixSize));
 
-            for(size_t i = 0; i < numThreads; i++) {
-                threads[i].join();
-            }
-            return result;
+            
             return result;
         }
         Matrix operator*(const Matrix<Type>& rhs) const {
@@ -292,21 +326,83 @@ namespace matrix {
         //Hadamard product
         Matrix hadamard(const Matrix &matrix) const {
             Matrix result(rows, cols);
-            for(size_t i = 0; i < rows; i++) {
-                for(size_t j = 0; j < cols; j++) {
-                    result.at(i,j) = at(i,j) * matrix.at(i,j);
+
+            //Yes this introduces a branch, but cost(misprediction) < cost(threading) for small matricies
+            if(rows * cols < threadSizeThreshold) {
+                for(size_t i = 0; i < rows * cols; i++) {
+                    result.data[i] = matrix.data[i] * data[i];
+                }
+            } else {
+                vector<thread> threads;
+                threads.reserve(numThreads);
+    
+                size_t matrixSize = this->rows * this->cols;
+                size_t evenWork = matrixSize/numThreads;
+                //size_t remainder = matrixSize % numThreads;
+                for(size_t i = 0; i < numThreads; i++) { //First threads do even work
+                    size_t start = i * evenWork;
+                    size_t stop = 0;
+                    if (i == numThreads - 1) {
+                        stop = matrixSize;
+                    } else {
+                        stop = (i + 1) * evenWork;
+                    }
+                    threads.emplace_back([&, start, stop] {
+                        mul_vector<Type>(ref(result.data), cref(this->data), cref(matrix.data), start, stop);
+                    });
+                }
+                for(size_t i = 0; i < numThreads; i++) {
+                    threads[i].join();
                 }
             }
+
+            
             return result;
         }
 
 
         Matrix hadamard_in_place(const Matrix &matrix) {
+
+
+
+            Matrix result(rows, cols);
+
+            //Yes this introduces a branch, but cost(misprediction) < cost(threading) for small matricies
+            if(rows * cols < threadSizeThreshold) {
+                for(size_t i = 0; i < rows * cols; i++) {
+                    this->data[i] = matrix.data[i] + this->data[i];
+                }
+            } else {
+                vector<thread> threads;
+                threads.reserve(numThreads);
+    
+                size_t matrixSize = this->rows * this->cols;
+                size_t evenWork = matrixSize/numThreads;
+                //size_t remainder = matrixSize % numThreads;
+                for(size_t i = 0; i < numThreads; i++) { //First threads do even work
+                    size_t start = i * evenWork;
+                    size_t stop = 0;
+                    if (i == numThreads - 1) {
+                        stop = matrixSize;
+                    } else {
+                        stop = (i + 1) * evenWork;
+                    }
+                    threads.emplace_back([&, start, stop] {
+                        add_vector<Type>(ref(this->data), cref(this->data), cref(matrix.data), start, stop);
+                    });
+                }
+                for(size_t i = 0; i < numThreads; i++) {
+                    threads[i].join();
+                }
+            }
+
+            /*
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {
                     at(i,j) = at(i,j) * matrix.at(i,j);
                 }
             }
+            */
             return *this;
         }
 

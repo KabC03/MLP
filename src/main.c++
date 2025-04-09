@@ -12,6 +12,8 @@ using namespace mlp;
 
 #define OUT_STOP 10
 
+
+
 float act(float x) {
     if(x > 0) {
         return x;
@@ -55,16 +57,32 @@ float func3(float x, float y) {
 
 int main(void) {
 
-    Matrix<float> m1;
-    Matrix<float> m2;
-    m1.randomise_in_place(0.01, 0.05);
-    m2.randomise_in_place(0.01, 0.05);
+    size_t num = 10;
+    size_t size = 1000;
+    Matrix<float> m3(size, size);
+    double time = 0;
+    for(size_t i = 0; i < num; i++) {
+        Matrix<float> m1(size,size);
+        Matrix<float> m2(size,size);
+    
+        m1.randomise_in_place(0, 10);
+        m2.randomise_in_place(0, 10);
+    
+        auto start = std::chrono::high_resolution_clock::now();
+        Matrix<float> m3 = m1 + m2;
+        auto end = std::chrono::high_resolution_clock::now();
+    
+        time += std::chrono::duration<double>(end - start).count();
+    }
+    std::cout << "Average time: " << (time / num) << " seconds" << endl;
+    cout << m3.at(0,0) << endl;
 
-    Matrix<float> m3 = m1 + m2;
-    m3.print();
+
 
     return 0;
-    vector<size_t> dims = {2, 500, 2};
+    clock_t startTime = 0;
+    clock_t endTime = 0;
+    vector<size_t> dims = {2, 3, 2};
 
     
     MLP<float> network(dims, -0.005, 0.005, act, act_deriv, loss, loss_deriv);
@@ -92,10 +110,6 @@ int main(void) {
         exit(1);
     }
 
-
-
-
-
     file << "" << endl;
 
     for(size_t i = 0; i < OUT_STOP; i++) {
@@ -104,8 +118,7 @@ int main(void) {
         float start = -3.14159;
         size_t count = 0;
 
-        clock_t startTime = 0;
-        clock_t endTime = 0;
+
         float timeRun = 0;
         float timeTrain = 0;
 

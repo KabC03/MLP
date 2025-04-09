@@ -11,3 +11,6 @@ Add this-> everywhere in matrix.h++ and MLP.h++
 - Try classification on an image
 - Thread functions
 
+
+- Thread scale, multiply, activate and transpose functions
+
