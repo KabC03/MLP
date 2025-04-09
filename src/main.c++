@@ -10,7 +10,7 @@ using namespace std;
 using namespace matrix;
 using namespace mlp;
 
-#define OUT_STOP 1
+#define OUT_STOP 5
 
 
 
@@ -61,14 +61,14 @@ int main(void) {
     clock_t endTime = 0;
 
 
-    vector<size_t> dims = {3, 5, 3};
+    vector<size_t> dims = {2, 1000, 2};
     MLP<float> network(dims, -0.005, 0.005, act, act_deriv, loss, loss_deriv);
     //network.print();
 
 
-    Matrix<float> input = {3, 1};
-    Matrix<float> expected = {3, 1};
-    Matrix<float> result = {3, 1};
+    Matrix<float> input = {2, 1};
+    Matrix<float> expected = {2, 1};
+    Matrix<float> result = {2, 1};
 
     vector<float> x;
     vector<float> y;
@@ -88,7 +88,7 @@ int main(void) {
     }
 
     file << "" << endl;
-    network.print_dimensions();
+
     for(size_t i = 0; i < OUT_STOP; i++) {
         //float lossMean = 0;
 
@@ -107,7 +107,6 @@ int main(void) {
             input.at(0,0) = start/3.14159;
             expected.at(0,0) = func1((float)(start));
             expected.at(1,0) = func2((float)(start));
-            expected.at(2,0) = func2((float)(start));
 
             startTime = clock();
             result = network.run(input);
@@ -122,9 +121,9 @@ int main(void) {
 
 
             if(i == OUT_STOP - 1) {
-                x.push_back(result.at(0,0));
-                y.push_back(result.at(1,0));
-                z.push_back(result.at(2,0));
+                x.push_back(start/3.14159);
+                y.push_back(result.at(0,0));
+                z.push_back(result.at(1,0));
             }
             /*
             if(count++ % 100000 == 0) {
