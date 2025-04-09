@@ -299,7 +299,7 @@ namespace matrix {
         Matrix hadamard(const Matrix &matrix) const {
             Matrix result(this->rows, this->cols);
 
-            MACRO_MATRIX_THREAD_OPERATION(this->rows, this->cols, result.data, this->data, rhs.data, *, mul_vector);
+            MACRO_MATRIX_THREAD_OPERATION(this->rows, this->cols, result.data, this->data, matrix.data, *, mul_vector);
 
             return result;
         }
@@ -307,11 +307,9 @@ namespace matrix {
 
         Matrix hadamard_in_place(const Matrix &matrix) {
 
-            Matrix result(this->rows, this->cols);
+            MACRO_MATRIX_THREAD_OPERATION(this->rows, this->cols, this->data, this->data, matrix.data, *, mul_vector);
 
-            MACRO_MATRIX_THREAD_OPERATION(this->rows, this->cols, this->data, this->data, rhs.data, *, mul_vector);
-
-            return result;
+            return *this;
         }
 
         //Print
