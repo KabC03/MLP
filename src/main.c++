@@ -45,7 +45,7 @@ float loss_deriv(float expected, float actual) {
 
 
 float func1(float x) {
-    return 0.2 * sin(x) * x;
+    return 0.05 * sin(x) * x;
 }
 float func2(float x) {
     return 0.5 * cos(x) * x;
