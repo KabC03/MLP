@@ -28,7 +28,7 @@ float mse_d    (float y, float ŷ) { return ŷ - y; }            // dL/dŷ
 // ============================================================================
 namespace cfg {
     //Target
-    float target(float x) { return sinf(x); }
+    float target(float x) { return sinf(x) * x * x; }
     // Dataset
     constexpr size_t SAMPLES = 1024;
     constexpr float  XMIN    = -5;
