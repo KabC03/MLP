@@ -42,7 +42,7 @@ namespace mlp {
         Type (*lastLayeractivationFunctionDerivative)(Type arg); //Derivative with respect to actual output NOT expected
 
 
-        std::vector<std::string> tokenize(const std::string& input) {
+        std::vector<std::string> tokenise_whitespace(const std::string& input) {
             istringstream iss(input);
             vector<std::string> tokens;
             string word;
@@ -110,20 +110,50 @@ namespace mlp {
                 return false;
             }
             string line = "";
-            typedef enum STATE {
-                WEIGHT,
-                BIAS,
-            } STATE;
-            STATE state = WEIGHT;
-            Matrix<Type> currentMatrix = (1,1);
+            bool expectWeights = true;
 
+            size_t i = 0;
+            size_t j = 0;
+            Matrix<Type> currentMatrix(1,1);
             while(1) {
 
-                getline(file, line);
+                if(!getline(file, line)) {
+                    break;
+                } else if(line.empty() == true) {
+                    j = 0;
+                    expectWeights = !expectWeights;
+                    if(expectWeights == true) {
+                        biases[i] = currentMatrix;
+                        i++;
+                    } else {
+                        weights[i] = currentMatrix;
+                    }
+                    currentMatrix = Matrix<Type>(1,1);
+
+                    continue;   
+                }
+                vector<string> tokens = tokenise_whitespace(line);
 
 
+                if(j >= currentMatrix.rows || tokens.size() > currentMatrix.cols) {
+                    currentMatrix.resize(j + 1, tokens.size());
+                }
 
-                vector<string> tokens = tokenise(line);
+                for(size_t k = 0; k < tokens.size(); k++) {
+                    if constexpr(is_floating_point<Type>::value) {
+                        currentMatrix.at(j, k) = stof(tokens[k]);
+                    } else {
+                        static_assert(is_floating_point<Type>::value, "Unsupported type");
+                    }
+                }
+                j++;
+                /*
+                if(expectWeights == true) {
+                    weights[i] = currentMatrix;
+                } else {
+                    biases[i] = currentMatrix;
+                }
+                */
             }
             file.close();
             return true;

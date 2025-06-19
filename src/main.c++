@@ -30,14 +30,20 @@ float mse_derivative(float expected, float actual) {
 }
 
 int main() {
-    vector<size_t> dims = {1, 2, 1};
+    vector<size_t> dims = {3, 2, 1};
     MLP<float> net(dims, -1.0f, 1.0f, relu, relu_derivative, relu, relu_derivative, mse, mse_derivative);
     
     if(net.save("./data/network.txt") == false) {
         cout << "Export failed" << endl;
     }
+    cout << "Network:" << endl;
+    net.print();
+
 
     net.load("./data/network.txt");
+
+    cout << "Loading network:" << endl;
+    net.print();
 
     return 0;
 }
