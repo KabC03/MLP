@@ -31,8 +31,8 @@ namespace cfg {
     float target(float x) { return sinf(x); }
     // Dataset
     constexpr size_t SAMPLES = 1024;
-    constexpr float  XMIN    = -static_cast<float>(M_PI);
-    constexpr float  XMAX    =  static_cast<float>(M_PI);
+    constexpr float  XMIN    = -5;
+    constexpr float  XMAX    =  5;
 
     // Network topology
     const vector<size_t> DIMS = {1, 32, 32, 1};
@@ -43,7 +43,7 @@ namespace cfg {
 
     // Training hyper-parameters
     constexpr float  LR      = 0.001f;
-    constexpr size_t EPOCHS  = 1000;
+    constexpr size_t EPOCHS  = 100;
 
     // Callbacks (activations & loss)
     constexpr auto H_ACT     = relu;
