@@ -1,20 +1,2 @@
-Add this-> everywhere in matrix.h++ and MLP.h++
-
-
-
-- print statement seems to change output and prevent loss diverging?
-- Network seems to work but you have to mess with activation functions and scaling a lot
-- Error is very high but patterns are correct
-- Mysterious NAN values sometimes when using tan, ln, etc
-
-- Try model a 2D function
-- Try classification on an image
-- Thread functions
-
-
-- Thread randomise, multiply and transpose functions
-    - Clean up code with macros
-
-
 NETWORK LOADING - SHOULD INIT PREACTIVATION, INPUT, OUTPUT MATRICIES
 
