@@ -70,7 +70,7 @@ using namespace std;
 
 namespace matrix {
 
-    static const size_t threadSizeThreshold = 1000; //If a matrix is larger than this use threading
+    static const size_t threadSizeThreshold = 10000; //If a matrix is larger than this use threading
     static unsigned int numThreads = thread::hardware_concurrency();
 
     template <typename Type>

@@ -6,7 +6,7 @@ clear
 
 mkdir ./output
 #clang++ ./src/*.c++ -fsanitize=address -Wall -std=c++17 -fsanitize=undefined -O3 -o ./output/out
-clang++ ./src/*.c++ -Wall -std=c++17 -O3 -o ./output/out
+clang++ ./src/*.c++ -std=c++17 -ffast-math -march=native -flto=thin -pthread -DNDEBUG -o ./output/out_fast
 
 
 if [[ $? -ne 0 ]]; then
@@ -17,7 +17,11 @@ if [[ $? -ne 0 ]]; then
 fi
 
 printf "\n\n[SHELL] Compilation success\n\n"
-./output/out
+
+#./output/out
+./output/out_fast
+
+
 
 python3 ./src/plot.py
 
