@@ -16,5 +16,5 @@ Add this-> everywhere in matrix.h++ and MLP.h++
     - Clean up code with macros
 
 
-
+NETWORK LOADING - SHOULD INIT PREACTIVATION, INPUT, OUTPUT MATRICIES
 

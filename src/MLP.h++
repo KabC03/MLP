@@ -111,22 +111,21 @@ namespace mlp {
             }
             string line = "";
             bool expectWeights = true;
-
             size_t i = 0;
-            size_t j = 0;
             Matrix<Type> currentMatrix(1,1);
+            weights.resize(1);
+            biases.resize(1);
             while(1) {
 
                 if(!getline(file, line)) {
                     break;
                 } else if(line.empty() == true) {
-                    j = 0;
+                    i = 0;
                     expectWeights = !expectWeights;
                     if(expectWeights == true) {
-                        biases[i] = currentMatrix;
-                        i++;
+                        biases.push_back(currentMatrix);
                     } else {
-                        weights[i] = currentMatrix;
+                        weights.push_back(currentMatrix);
                     }
                     currentMatrix = Matrix<Type>(1,1);
 
@@ -135,18 +134,18 @@ namespace mlp {
                 vector<string> tokens = tokenise_whitespace(line);
 
 
-                if(j >= currentMatrix.rows || tokens.size() > currentMatrix.cols) {
-                    currentMatrix.resize(j + 1, tokens.size());
+                if(i >= currentMatrix.rows || tokens.size() > currentMatrix.cols) {
+                    currentMatrix.resize(i + 1, tokens.size());
                 }
 
-                for(size_t k = 0; k < tokens.size(); k++) {
+                for(size_t j = 0; j < tokens.size(); j++) {
                     if constexpr(is_floating_point<Type>::value) {
-                        currentMatrix.at(j, k) = stof(tokens[k]);
+                        currentMatrix.at(i, j) = stof(tokens[j]);
                     } else {
                         static_assert(is_floating_point<Type>::value, "Unsupported type");
                     }
                 }
-                j++;
+                i++;
                 /*
                 if(expectWeights == true) {
                     weights[i] = currentMatrix;
@@ -191,9 +190,14 @@ namespace mlp {
 
             Matrix<Type> *prevOutput = &networkInput; //Use pointer instead of reference
             for(size_t i = 0; i < numLayers; i++) {
+                Matrix<Type> z = (weights[i] * (*prevOutput)) + biases[i];
 
-
-                outputs[i] = ((weights[i] * (*prevOutput)) + (biases[i])).activate(activationFunction); //Slower...
+                if (i == numLayers - 1) {
+                    outputs[i] = z.activate(lastLayeractivationFunction);
+                } else {
+                    outputs[i] = z.activate(activationFunction);
+                }
+                //outputs[i] = ((weights[i] * (*prevOutput)) + (biases[i])).activate(activationFunction); //Slower...
                 //outputs[i] = ((weights[i] * (*prevOutput)) + biases[i]).activate(activationFunction); //Also slower
                 //outputs[i] = ((weights[i] * (*prevOutput)) + biases[i]).activate(activationFunction);
 
@@ -222,7 +226,11 @@ namespace mlp {
                 //temp.print();
 
                 preActivation[i] = (weights[i] * (*prevOutput)) + biases[i]; 
-                outputs[i] = preActivation[i].activate(activationFunction);
+                if (i == numLayers - 1) {
+                    outputs[i] = preActivation[i].activate(lastLayeractivationFunction);
+                } else {
+                    outputs[i] = preActivation[i].activate(activationFunction);
+                }
 
                 prevOutput = &(outputs[i]);
             }
@@ -235,7 +243,15 @@ namespace mlp {
             }
 
             for(size_t i = numLayers - 1; i != SIZE_MAX; --i) {
-                Matrix<Type> delta = error.hadamard(preActivation[i].activate(activationFunctionDerivative));
+
+                Matrix<Type> delta;
+                if (i == numLayers - 1) {
+                    delta = error.hadamard(
+                            preActivation[i].activate(lastLayeractivationFunctionDerivative));
+                } else {
+                    delta = error.hadamard(
+                            preActivation[i].activate(activationFunctionDerivative));
+                }
 
                 Matrix<Type> inputTransposed;
                 if(i == 0) {
@@ -247,13 +263,14 @@ namespace mlp {
                 Matrix<Type> deltaWeights = delta * inputTransposed;
                 Matrix<Type> deltaBiases = delta;
 
-                Matrix<Type> &currentWeights = weights[i];
-                weights[i] = weights[i] - (deltaWeights.scale(learningRate));
-                biases[i] = biases[i] - (deltaBiases.scale(learningRate));
+                Matrix<Type> currentWeights = weights[i].transpose();
+                weights[i] = weights[i] - deltaWeights.scale(learningRate);
+                biases[i] = biases[i] - deltaBiases.scale(learningRate);
 
-                if(i > 0) {
-                    error = currentWeights.transpose() * delta;
+                if (i > 0) {
+                    error = currentWeights * delta;
                 }
+
             }
 
             return;

@@ -70,7 +70,7 @@ using namespace std;
 
 namespace matrix {
 
-    static const size_t threadSizeThreshold = 1000; //If a matrix is larger than this use threading
+    static const size_t threadSizeThreshold = 10000; //If a matrix is larger than this use threading
     static unsigned int numThreads = thread::hardware_concurrency();
 
     template <typename Type>
@@ -208,7 +208,7 @@ namespace matrix {
             return *this;
         }
         Matrix sub_in_place(const Matrix<Type> &rhs) {
-            MACRO_MATRIX_THREAD_OPERATION(this->rows, this->cols, this->data, this->data, rhs.data, -, sub_in_place);
+            MACRO_MATRIX_THREAD_OPERATION(this->rows, this->cols, this->data, this->data, rhs.data, -, sub_vector);
             return *this;
         }
 
