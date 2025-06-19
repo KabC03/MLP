@@ -1,6 +1,14 @@
 #ifndef MLP_H
 #define MLP_H
-#include <stdexcept>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <vector>
+#include <cstddef>
+#include <cstdint>
+#include <random>
+#include <type_traits>
+#include <thread>
 #include "matrix.h++"
 
 
@@ -8,19 +16,62 @@ using namespace std;
 using namespace matrix;
 
 namespace mlp {
-    
+
     template <typename Type>
     class MLP {
+
+        private:
+        //Attributes
+
+        size_t numLayers;
+        vector<Matrix<Type>> weights;
+        vector<Matrix<Type>> biases;
+        vector<Matrix<Type>> preActivation;
+        vector<Matrix<Type>> outputs;
+
+         
+        Matrix<Type> networkInput;
+        Type (*activationFunction)(Type arg);
+        Type (*activationFunctionDerivative)(Type arg);
+
+        Type (*lossFunction)(Type expected, Type actual);
+        Type (*lossFunctionDerivative)(Type expected, Type actual); //Derivative with respect to actual output NOT expected
+    
+
+        Type (*lastLayeractivationFunction)(Type arg);
+        Type (*lastLayeractivationFunctionDerivative)(Type arg); //Derivative with respect to actual output NOT expected
+
+
+        std::vector<std::string> tokenize(const std::string& input) {
+            istringstream iss(input);
+            vector<std::string> tokens;
+            string word;
+
+            while (iss >> word) {
+                tokens.push_back(word);
+            }
+
+            return tokens;
+        }       
+
+    
         public:
 
         //Constructor
-        MLP(vector<size_t> &dimensions, Type min, Type max, Type (*newActivationFunction)(Type arg), 
-        Type (*newActivationFunctionDerivative)(Type arg), Type (*newLossFunction)(Type arg1, Type arg2), 
+        MLP(vector<size_t> &dimensions, Type min, Type max, 
+        Type (*newActivationFunction)(Type arg), 
+        Type (*newActivationFunctionDerivative)(Type arg),  
+        Type (*newLastLayerActivationFunction)(Type arg), 
+        Type (*newLastLayerActivationFunctionDerivative)(Type arg), 
+        Type (*newLossFunction)(Type arg1, Type arg2), 
         Type (*newLossFunctionDerivative)(Type arg1, Type arg2)) {
             //[1,2,3] creates a network with 1 input neuron, 1 hidden layer (2 neurons) and 3 output neurons 
 
             activationFunction = newActivationFunction;
             activationFunctionDerivative = newActivationFunctionDerivative;
+
+            lastLayeractivationFunction = newLastLayerActivationFunction;
+            lastLayeractivationFunctionDerivative = newLastLayerActivationFunctionDerivative;
 
             lossFunction = newLossFunction;
             lossFunctionDerivative = newLossFunctionDerivative;
@@ -32,6 +83,9 @@ namespace mlp {
             outputs.resize(dimensions.size() - 1);
 
             numLayers = dimensions.size() - 1;
+
+            networkInput.resize(dimensions[0], 1);
+            networkInput.randomise_in_place(min, max);
 
             for(size_t i = 0; i < numLayers; i++) {
                 weights[i].resize(dimensions[i + 1], dimensions[i]);
@@ -46,39 +100,59 @@ namespace mlp {
         }
 
 
-        //Construct from file
-        MLP(string networkParameters) {
 
+        //Import network params froma file
+        bool load(string fileName) {
+            
+            ifstream file(fileName);
+
+            if(!file) {
+                return false;
+            }
+            string line = "";
             typedef enum STATE {
-                LAYER,
-                NEURON,
-
-                BIAS,
                 WEIGHT,
+                BIAS,
             } STATE;
+            STATE state = WEIGHT;
+            Matrix<Type> currentMatrix = (1,1);
 
-            STATE state = LAYER;
-            size_t i = 0;
+            while(1) {
 
-            Type currentBias = 0;
-            Type currentWeight = 0;
-            for(i = 0; i < networkParameters.length(); i++) {
+                getline(file, line);
 
 
-                char currentChar = networkParameters[i];
-                if(isspace(currentChar) == true) {
-                    continue;
-                }
 
-                switch(state) {
-
-                }
+                vector<string> tokens = tokenise(line);
             }
-            if(i != networkParameters.length() - 1) {
-                throw runtime_error("Incomplete network parameters");
-            }
+            file.close();
+            return true;
         }
 
+        //Export network parametrs to a file
+        bool save(string fileName) {
+
+            //Clear file
+            std::ofstream file(fileName, ios::trunc);
+            if (!file) {
+                return false;
+            }
+            file.close();
+
+            for(size_t i = 0; i < numLayers; i++) {
+
+                if(weights[i].append_file(fileName) == false) {
+                    return false;
+                }
+                if(biases[i].append_file(fileName) == false) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        
 
 
         //Run network
@@ -203,26 +277,6 @@ namespace mlp {
                 outputs[i].print_dimensions(); 
             }
         }
-
-
-
-        private:
-
-        //Attributes
-
-        size_t numLayers;
-        vector<Matrix<Type>> weights;
-        vector<Matrix<Type>> biases;
-        vector<Matrix<Type>> preActivation;
-        vector<Matrix<Type>> outputs;
-
-         
-        Matrix<Type> networkInput;
-        Type (*activationFunction)(Type arg);
-        Type (*activationFunctionDerivative)(Type arg);
-
-        Type (*lossFunction)(Type expected, Type actual);
-        Type (*lossFunctionDerivative)(Type expected, Type actual); //Derivative with respect to actual output NOT expected
     };
 }
 

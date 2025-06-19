@@ -340,7 +340,7 @@ namespace matrix {
             this->print_dimensions();
             for(size_t i = 0; i < rows; i++) {
                 for(size_t j = 0; j < cols; j++) {
-                    cout << at(i, j) << " ";
+                    cout << this->at(i, j) << " ";
                 }
                 cout << endl;
             }
@@ -348,6 +348,24 @@ namespace matrix {
             return;
         }
 
+
+        bool append_file(string fileName) {
+            ofstream file(fileName, ios::app);
+            if(!file) {
+                return false;
+            }
+
+            for(size_t i = 0; i < rows; i++) {
+                for(size_t j = 0; j < cols; j++) {
+                    file << this->at(i, j) << " ";
+                }
+                file << endl;
+            }
+            file << endl;
+
+            file.close();
+            return true;
+        }
     };
 }
 

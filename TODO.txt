@@ -17,5 +17,4 @@ Add this-> everywhere in matrix.h++ and MLP.h++
 
 
 
-export and import functions
 
