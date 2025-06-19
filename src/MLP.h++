@@ -1,6 +1,8 @@
 #ifndef MLP_H
 #define MLP_H
+#include <stdexcept>
 #include "matrix.h++"
+
 
 using namespace std;
 using namespace matrix;
@@ -42,6 +44,41 @@ namespace mlp {
                 biases[i].randomise_in_place(min, max);
             }
         }
+
+
+        //Construct from file
+        MLP(string networkParameters) {
+
+            typedef enum STATE {
+                LAYER,
+                NEURON,
+
+                BIAS,
+                WEIGHT,
+            } STATE;
+
+            STATE state = LAYER;
+            size_t i = 0;
+
+            Type currentBias = 0;
+            Type currentWeight = 0;
+            for(i = 0; i < networkParameters.length(); i++) {
+
+
+                char currentChar = networkParameters[i];
+                if(isspace(currentChar) == true) {
+                    continue;
+                }
+
+                switch(state) {
+
+                }
+            }
+            if(i != networkParameters.length() - 1) {
+                throw runtime_error("Incomplete network parameters");
+            }
+        }
+
 
 
         //Run network
@@ -106,7 +143,7 @@ namespace mlp {
                 Matrix<Type> deltaWeights = delta * inputTransposed;
                 Matrix<Type> deltaBiases = delta;
 
-                Matrix<Type> currentWeights = weights[i];
+                Matrix<Type> &currentWeights = weights[i];
                 weights[i] = weights[i] - (deltaWeights.scale(learningRate));
                 biases[i] = biases[i] - (deltaBiases.scale(learningRate));
 

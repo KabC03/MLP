@@ -1,41 +1,43 @@
-import matplotlib.pyplot as plt
-import numpy as np
+import matplotlib.pyplot as plt;
+import numpy as np;
+import sys;
 
-numOutputs = 2;
+
 
 
 def main():
 
-    with open("./data/out.txt", "r") as file:
-        xLine = file.readline();
-        xVals = [float(value) for value in xLine.split()];
+    with open('./data/out.txt', 'r') as file:
 
-        for i in range(0, numOutputs):
-            yLine = file.readline();
-            yVals = [float(value) for value in yLine.split()];
-            plt.plot(xVals, yVals, label = "f(x" + str(i) + ") vs x");
+        xSeries = [];
+        ySeriesArray = []; #List of list of y/z/w/etc values
+        for line in file:
+
+            lineSeries = line.strip().split(', ');
+            xSeries.append(float(lineSeries[0]));
+
+            for i in range(1, len(lineSeries)):
+                if len(ySeriesArray) < i:
+                    ySeriesArray.append([]);
+                
+                ySeriesArray[i - 1].append((float(lineSeries[i])));
 
 
-        xCopy = np.array(xVals);
-        xCopy *= (np.pi);
-        plt.plot(xVals, 0.2 * np.sin(xCopy), label = "f(x) = 0.2 * sin(x) vs x");
-        plt.plot(xVals, 0.5 * np.cos(xCopy), label = "f(x) = 0.5 * cos(x) vs x");
-
-
-        plt.title("f(xn) vs x");
         plt.xlabel("x");
-        plt.ylabel("f(xn)");
+        plt.ylabel("F[x]");
+        plt.title("F[x] vs x");
 
+        for i in range(0, len(ySeriesArray)):
+            plt.plot(xSeries, ySeriesArray[i], label = "F" + str(i) + "[x]");
 
-        plt.legend(loc = "best");
+        plt.legend(loc = 'best');
         plt.show();
 
 
 
-
-
 if __name__ == "__main__":
-    main();
+    sys.exit(main());
+
 
 
 

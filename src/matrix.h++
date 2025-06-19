@@ -285,16 +285,6 @@ namespace matrix {
             return result;
         }
 
-        Matrix transpose_in_place(void) {
-            for(size_t i = 0; i < rows; i++) {
-                for(size_t j = 0; j < cols; j++) {
-                    Type temp = at(j,i);
-                    at(j,i) = at(i,j);
-                    at(i,j) = temp;
-                }
-            }
-            return *this;
-        }
 
         //Min max norm
         Matrix normalise() const {
